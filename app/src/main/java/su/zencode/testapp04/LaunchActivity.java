@@ -39,7 +39,7 @@ public class LaunchActivity extends AppCompatActivity {
                 Log.d(TAG, s);
             }
         };
-        fetchCategoryTask.execute(6981);
+        fetchCategoryTask.execute(3817);
         fetchOffersTask.execute(7583);
     }
 }
