@@ -10,30 +10,30 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+import su.zencode.testapp04.EaptekaApiClient.UrlsMap.Endpoints;
 
 public class TestAppClient {
     private static final String TAG = "TestAppClient";
 
-    public String fetch(String url, String username, String password) {
+    public String fetchCategory(int id, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);
+        String url = Endpoints.HOST + Endpoints.CATEGORIES + id;
 
-        try {
-            String result = doRequest(client, url).body().string();
-            return result;
-        } catch (IOException e) {
-            Log.e(TAG, "request.body.string() error", e);
-        }
-
-        return null;
+        return doRequest(client, url);
     }
 
-    public Response doRequest(OkHttpClient client, String url) {
-        Log.d(TAG, "doRequest()");
+    public String fetchOffers(int id, String username, String password) {
+        OkHttpClient client = createAuthentificationClient(username, password);
+        String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
 
-        //OkHttpClient client = new OkHttpClient();
+        return doRequest(client, url);
+    }
+
+    public String doRequest(OkHttpClient client, String url) {
+        Log.d(TAG, "Received request for URL: " + url);
 
         Request request = new Request.Builder()
-                .url(UrlsMap.Endpoints.HOST + UrlsMap.Endpoints.CATEGORIES + "0")
+                .url(url)
                 .header("Content-Type","application/json")
                 .header("platform", "android")
                 .header("api-key", "i&j*3&^2TZ&d")
@@ -41,8 +41,7 @@ public class TestAppClient {
 
         try {
             Response response = client.newCall(request).execute();
-            //String result = response.body().string();
-            return response;
+            return response.body().string();
         } catch (IOException e) {
             Log.e(TAG, "Failed to make a OkHttp call", e);
         }
@@ -62,8 +61,4 @@ public class TestAppClient {
         return httpClient;
     }
 
-    /**
-    private static Response doRequest(OkHttpClient client, String url) {
-        Request request = new Request.Builder()
-    }*/
 }

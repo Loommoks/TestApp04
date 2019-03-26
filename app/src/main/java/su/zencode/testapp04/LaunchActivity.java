@@ -8,17 +8,17 @@ import android.util.Log;
 import su.zencode.testapp04.EaptekaApiClient.TestAppClient;
 
 public class LaunchActivity extends AppCompatActivity {
-    private static final String TAG = "LaunchActivity";
+    private static final String TAG = "LaunchActivity22";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
 
-        AsyncTask<Void,Void,String> asyncTask = new AsyncTask<Void, Void, String>() {
+        AsyncTask<Integer,Void,String> fetchCategoryTask = new AsyncTask<Integer, Void, String>() {
             @Override
-            protected String doInBackground(Void... voids) {
-                return new TestAppClient().fetch("","eapteka","stage");
+            protected String doInBackground(Integer... values) {
+                return new TestAppClient().fetchCategory(values[0],"eapteka","stage");
             }
 
             @Override
@@ -27,6 +27,19 @@ public class LaunchActivity extends AppCompatActivity {
                 Log.d(TAG, s);
             }
         };
-        asyncTask.execute();
+        AsyncTask<Integer,Void,String> fetchOffersTask = new AsyncTask<Integer, Void, String>() {
+            @Override
+            protected String doInBackground(Integer... values) {
+                return new TestAppClient().fetchOffers(values[0],"eapteka","stage");
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                Log.d(TAG, s);
+            }
+        };
+        fetchCategoryTask.execute(6981);
+        fetchOffersTask.execute(7583);
     }
 }
