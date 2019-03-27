@@ -15,7 +15,7 @@ import su.zencode.testapp04.EaptekaApiClient.UrlsMap.Endpoints;
 public class TestAppClient {
     private static final String TAG = "TestAppClient";
 
-    public String fetchCategory(int id, String username, String password) {
+    public String fetchSubCategories(int id, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);
         String url = Endpoints.HOST + Endpoints.CATEGORIES + id;
 

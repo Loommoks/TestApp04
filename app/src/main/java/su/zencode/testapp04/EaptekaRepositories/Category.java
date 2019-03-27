@@ -1,14 +1,16 @@
 package su.zencode.testapp04.EaptekaRepositories;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Category {
     private int mId;
     private String mName;
     private boolean mHasSubCategories;
-    private List<Category> mSubCategoriesList;
+    private ArrayList<Category> mSubCategoriesList;
     private List<Integer> mSubCategoriesIdList;
-    private List<Offer> mOfferList;
+    private HashMap<Integer, Offer> mOfferList;
     private List<Integer> mOffersIdList;
 
     public Category(int id, String name, boolean subcategories) {
@@ -33,11 +35,11 @@ public class Category {
         return mHasSubCategories;
     }
 
-    public List<Category> getSubCategoriesList() {
+    public ArrayList<Category> getSubCategoriesList() {
         return mSubCategoriesList;
     }
 
-    public void setSubCategoriesList(List<Category> subCategoriesList) {
+    public void setSubCategoriesList(ArrayList<Category> subCategoriesList) {
         mSubCategoriesList = subCategoriesList;
     }
 
@@ -49,11 +51,16 @@ public class Category {
         mSubCategoriesIdList = subCategoriesIdList;
     }
 
-    public List<Offer> getOfferList() {
+    public Offer getOffer(int id) {
+        if (mOfferList == null) return null;
+        return mOfferList.get(id);
+    }
+
+    public HashMap<Integer, Offer> getOfferList() {
         return mOfferList;
     }
 
-    public void setOfferList(List<Offer> offerList) {
+    public void setOfferList(HashMap<Integer, Offer> offerList) {
         mOfferList = offerList;
     }
 

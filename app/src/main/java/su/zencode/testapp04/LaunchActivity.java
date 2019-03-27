@@ -5,41 +5,60 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import su.zencode.testapp04.EaptekaApiClient.TestAppClient;
+import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
+import su.zencode.testapp04.EaptekaRepositories.Category;
 
 public class LaunchActivity extends AppCompatActivity {
     private static final String TAG = "LaunchActivity22";
+    private CategoriesRepository mCategoriesRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+        mCategoriesRepository = CategoriesRepository.getIstance();
 
-        AsyncTask<Integer,Void,String> fetchCategoryTask = new AsyncTask<Integer, Void, String>() {
+        AsyncTask<Integer,Void,Integer> fetchSubCategoriesTask = new AsyncTask<Integer, Void, Integer>() {
             @Override
-            protected String doInBackground(Integer... values) {
-                return new TestAppClient().fetchCategory(values[0],"eapteka","stage");
+            protected Integer doInBackground(Integer... values) {
+                Category category = mCategoriesRepository.getCategory(values[0]);
+                if(category.getSubCategoriesList() == null)
+                    new EaptekaFetcher().fetchSubCategories(values[0]);
+
+                return values[0];
             }
 
             @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                Log.d(TAG, s);
+            protected void onPostExecute(Integer id) {
+                showSubCategories(id);
+                ArrayList<Category> subCategories = mCategoriesRepository.getCategory(id).getSubCategoriesList();
+                Log.d(TAG, subCategories.toString());
             }
         };
-        AsyncTask<Integer,Void,String> fetchOffersTask = new AsyncTask<Integer, Void, String>() {
+        AsyncTask<Integer,Void,Integer> fetchOffersTask = new AsyncTask<Integer, Void, Integer>() {
             @Override
-            protected String doInBackground(Integer... values) {
-                return new TestAppClient().fetchOffers(values[0],"eapteka","stage");
+            protected Integer doInBackground(Integer... values) {
+                Category category = mCategoriesRepository.getCategory(values[0]);
+                if(category.getOfferList() == null)
+                    new EaptekaFetcher().fetchOffers(values[0]);
+                return values[0];
             }
 
             @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                Log.d(TAG, s);
+            protected void onPostExecute(Integer id) {
+                Log.d(TAG, mCategoriesRepository.getCategory(id).getOfferList().toString());
             }
         };
-        fetchCategoryTask.execute(3817);
+        Category baseCategory = new Category(0, "base", true);
+        CategoriesRepository.getIstance().putCategory(baseCategory);
+        fetchSubCategoriesTask.execute(0);
         fetchOffersTask.execute(7583);
+    }
+
+    private void showSubCategories(int id) {
+
     }
 }
