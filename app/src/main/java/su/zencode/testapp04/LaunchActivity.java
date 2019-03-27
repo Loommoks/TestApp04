@@ -1,13 +1,14 @@
 package su.zencode.testapp04;
 
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import su.zencode.testapp04.EaptekaApiClient.TestAppClient;
 import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 
@@ -19,8 +20,18 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
-        mCategoriesRepository = CategoriesRepository.getIstance();
 
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+
+        if(fragment == null) {
+            fragment = createFragment();
+            fm.beginTransaction()
+                    .add(R.id.fragment_container, fragment)
+                    .commit();
+        }
+
+        /**
         AsyncTask<Integer,Void,Integer> fetchSubCategoriesTask = new AsyncTask<Integer, Void, Integer>() {
             @Override
             protected Integer doInBackground(Integer... values) {
@@ -52,13 +63,14 @@ public class LaunchActivity extends AppCompatActivity {
                 Log.d(TAG, mCategoriesRepository.getCategory(id).getOfferList().toString());
             }
         };
-        Category baseCategory = new Category(0, "base", true);
-        CategoriesRepository.getIstance().putCategory(baseCategory);
-        fetchSubCategoriesTask.execute(0);
-        fetchOffersTask.execute(7583);
+        */
+        //Category baseCategory = new Category(0, "base", true);
+        //CategoriesRepository.getIstance().putCategory(baseCategory);
+        //fetchSubCategoriesTask.execute(0);
+        //fetchOffersTask.execute(7583);
     }
 
-    private void showSubCategories(int id) {
-
+    private Fragment createFragment() {
+        return CategoriesListFragment.newInstance(0);
     }
 }
