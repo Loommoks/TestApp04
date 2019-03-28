@@ -1,5 +1,6 @@
 package su.zencode.testapp04;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,8 @@ import su.zencode.testapp04.EaptekaRepositories.Category;
 public class CategoriesListFragment extends Fragment {
     private static final String TAG = "CategoriesListFragment";
     private static final String ARG_CATEGORY_ID = "category_id";
+
+    private EaptekaCategoryRepository mRepository;
     private RecyclerView mCategoryRecyclerView;
     private CategoryAdapter mAdapter;
     private Category mCategory;
@@ -41,10 +44,12 @@ public class CategoriesListFragment extends Fragment {
 
         int categoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
 
-        mCategory = CategoriesRepository.getIstance().getCategory(categoryId);
+        mRepository = CategoriesRepository.getInstance();
+
+        mCategory = mRepository.get(categoryId);
         if (mCategory == null && categoryId == 0) {
             Category baseCategory = new Category(0, "base", true);
-            CategoriesRepository.getIstance().putCategory(baseCategory);
+            mRepository.put(baseCategory);
             mCategory = baseCategory;
         }
     }
@@ -114,16 +119,19 @@ public class CategoriesListFragment extends Fragment {
             if(mCategory.hasSubCategories()) {
                 Fragment newFragment = newInstance(mCategory.getId());
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, newFragment);
+                transaction.replace(R.id.launch_activity_fragment_container, newFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
             } else {
                 //todo new Activity & OffersListFragment
+                Intent intent = OffersListActivity.newIntent(getActivity(), mCategory.getId());
+                startActivity(intent);/**
                 Fragment newFragment = OffersListFragment.newInstance(mCategory.getId());
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_container, newFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+                 */
             }
             //todo обработать клик
         }
@@ -162,7 +170,7 @@ public class CategoriesListFragment extends Fragment {
     AsyncTask<Integer,Void,Integer> fetchSubCategoriesTask = new AsyncTask<Integer, Void, Integer>() {
         @Override
         protected Integer doInBackground(Integer... values) {
-            Category category = CategoriesRepository.getIstance().getCategory(values[0]);
+            Category category = CategoriesRepository.getInstance().get(values[0]);
             if(category.getSubCategoriesList() == null)
                 new EaptekaFetcher().fetchSubCategories(values[0]);
 

@@ -16,7 +16,7 @@ public class EaptekaFetcher {
     Category mCategory;
 
     public EaptekaFetcher() {
-        mCategoriesRepository = CategoriesRepository.getIstance();
+        mCategoriesRepository = CategoriesRepository.getInstance();
     }
     public void fetchSubCategories(int id) {
         mCategory = mCategoriesRepository.getCategory(id);

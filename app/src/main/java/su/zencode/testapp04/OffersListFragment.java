@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ public class OffersListFragment extends Fragment {
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
+    private EaptekaCategoryRepository mCategoryRepository;
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
@@ -46,8 +46,9 @@ public class OffersListFragment extends Fragment {
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
+        mCategoryRepository = CategoriesRepository.getInstance();
 
-        mOfferList = CategoriesRepository.getIstance().getCategory(mCategoryId).getOfferList();
+        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
         if (mOfferList == null) {
             //todo solve null List
         }
@@ -76,18 +77,17 @@ public class OffersListFragment extends Fragment {
     }
 
     private void updateUI() {
-        mOfferList = CategoriesRepository.getIstance().getCategory(mCategoryId).getOfferList();
+        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
         if(mOfferList == null) return;
 
         if(mAdapter == null) {
             mAdapter = new OfferAdapter(mOfferList);
-            mOfferRecyclerView.setAdapter(mAdapter);
+            //mOfferRecyclerView.setAdapter(mAdapter);
         } else {
             mAdapter.setOfferList(mOfferList);
             mAdapter.notifyDataSetChanged();
         }
-
-
+        mOfferRecyclerView.setAdapter(mAdapter);
     }
 
     private class OfferHolder extends RecyclerView.ViewHolder
@@ -156,7 +156,7 @@ public class OffersListFragment extends Fragment {
 
         @Override
         protected Integer doInBackground(Integer... integers) {
-            Category category = CategoriesRepository.getIstance().getCategory(integers[0]);
+            Category category = CategoriesRepository.getInstance().get(integers[0]);
             if(category.getOfferList() == null)
                 new EaptekaFetcher().fetchOffers(integers[0]);
 

@@ -2,13 +2,15 @@ package su.zencode.testapp04.EaptekaRepositories;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CategoriesRepository {
+import su.zencode.testapp04.EaptekaCategoryRepository;
+
+public class CategoriesRepository implements EaptekaCategoryRepository {
     private static CategoriesRepository sCategoriesRepository;
     private static final String TAG = ".CategoriesRepository";
 
     private ConcurrentHashMap<Integer, Category> mCategories;
 
-    public static CategoriesRepository getIstance() {
+    public static CategoriesRepository getInstance() {
         if(sCategoriesRepository == null) {
             sCategoriesRepository = new CategoriesRepository();
         }
@@ -20,13 +22,22 @@ public class CategoriesRepository {
         mCategories = new ConcurrentHashMap<>();
     }
 
-    public void putCategory(Category category) {
+    private void putCategory(Category category) {
         mCategories.put(category.getId(),category);
     }
 
-    public Category getCategory(int id) {
+    private Category getCategory(int id) {
         return mCategories.get(id);
     }
 
 
+    @Override
+    public void put(Category category) {
+        putCategory(category);
+    }
+
+    @Override
+    public Category get(int id) {
+        return getCategory(id);
+    }
 }
