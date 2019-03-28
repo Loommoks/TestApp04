@@ -10,7 +10,7 @@ public class Category {
     private boolean mHasSubCategories;
     private ArrayList<Category> mSubCategoriesList;
     private List<Integer> mSubCategoriesIdList;
-    private HashMap<Integer, Offer> mOfferList;
+    private ArrayList<Offer> mOfferList;
     private List<Integer> mOffersIdList;
 
     public Category(int id, String name, boolean subcategories) {
@@ -56,11 +56,11 @@ public class Category {
         return mOfferList.get(id);
     }
 
-    public HashMap<Integer, Offer> getOfferList() {
+    public ArrayList<Offer> getOfferList() {
         return mOfferList;
     }
 
-    public void setOfferList(HashMap<Integer, Offer> offerList) {
+    public void setOfferList(ArrayList<Offer> offerList) {
         mOfferList = offerList;
     }
 

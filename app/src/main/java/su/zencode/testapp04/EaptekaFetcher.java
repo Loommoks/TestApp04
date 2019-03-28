@@ -5,7 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import su.zencode.testapp04.EaptekaApiClient.TestAppClient;
 import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
@@ -50,7 +49,7 @@ public class EaptekaFetcher {
         return null;
     }
 
-    private HashMap<Integer, Offer> parseOffersJson(String jsonBodyString) {
+    private ArrayList<Offer> parseOffersJson(String jsonBodyString) {
         try {
             JSONObject jsonBody = new JSONObject(jsonBodyString);
             JSONArray offersJsonArray = jsonBody.getJSONArray("offers");
@@ -79,8 +78,8 @@ public class EaptekaFetcher {
         return subCategories;
     }
 
-    private HashMap<Integer, Offer> parseOffersArray(JSONArray offersJsonArray) throws JSONException {
-        HashMap<Integer, Offer> offersList = new HashMap<>();
+    private ArrayList<Offer> parseOffersArray(JSONArray offersJsonArray) throws JSONException {
+        ArrayList<Offer> offersList = new ArrayList<>();
         for(int i = 0; i < offersJsonArray.length(); i++) {
             JSONObject offerJson = offersJsonArray.getJSONObject(i);
             int id = offerJson.getInt("id");
@@ -93,7 +92,7 @@ public class EaptekaFetcher {
                     offerJson.getString("icon"),
                     picturesUrls
             );
-            offersList.put(id, offer);
+            offersList.add(offer);
             /**mCategory.
             if(mCategory.getOffer(id) == null)
                 saveOfferToRepo(offer);*/
