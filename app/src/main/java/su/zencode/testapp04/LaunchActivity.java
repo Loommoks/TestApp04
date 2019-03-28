@@ -3,6 +3,7 @@ package su.zencode.testapp04;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,9 +13,9 @@ import java.util.ArrayList;
 import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 
-public class LaunchActivity extends AppCompatActivity {
+public class LaunchActivity extends AppCompatActivity implements CategoryHostActivity{
     private static final String TAG = "LaunchActivity22";
-    private CategoriesRepository mCategoriesRepository;
+    //private CategoriesRepository mCategoriesRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class LaunchActivity extends AppCompatActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if(fragment == null) {
-            fragment = createFragment();
+            fragment = createFragment(0);
             fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
                     .commit();
@@ -70,7 +71,22 @@ public class LaunchActivity extends AppCompatActivity {
         //fetchOffersTask.execute(7583);
     }
 
-    private Fragment createFragment() {
-        return CategoriesListFragment.newInstance(0);
+    private Fragment createFragment(int id) {
+        return CategoriesListFragment.newInstance(id);
+    }
+
+    @Override
+    public void replaceCategoryList(int id) {
+
+
+
+        /**
+        //FragmentManager fm = getSupportFragmentManager();
+        Fragment newFragment = createFragment(id);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        //Fragment newFragment = fm.findFragmentById(R.id.fragment_container);
+        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();*/
     }
 }
