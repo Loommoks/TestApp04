@@ -1,4 +1,4 @@
-package su.zencode.testapp04;
+package su.zencode.testapp04.TestAppApiClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -6,31 +6,34 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import su.zencode.testapp04.EaptekaApiClient.TestAppClient;
-import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
+import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
+import su.zencode.testapp04.EaptekaRepositories.CacheCategoriesRepositoryI;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 
-public class EaptekaFetcher {
-    CategoriesRepository mCategoriesRepository;
+public class EaptekaApiClient implements IEaptekaApiClient {
+    IEaptekaCategoryRepository mRepository;
     Category mCategory;
 
-    public EaptekaFetcher() {
-        mCategoriesRepository = CategoriesRepository.getInstance();
+    public EaptekaApiClient() {
+        mRepository = CacheCategoriesRepositoryI.getInstance();
     }
+
+    @Override
     public void fetchSubCategories(int id) {
-        mCategory = mCategoriesRepository.getCategory(id);
+        mCategory = mRepository.getCategory(id);
         if(mCategory.getSubCategoriesList() == null) {
             //todo add database check&load
-            String response = new TestAppClient().fetchSubCategories(id, "eapteka", "stage");
+            String response = new EaptekaHttpClient().fetchSubCategories(id, "eapteka", "stage");
             mCategory.setSubCategoriesList(parseSubCategoriesJson(response));
         }
     }
 
+    @Override
     public void fetchOffers(int id) {
-        mCategory = mCategoriesRepository.getCategory(id);
+        mCategory = mRepository.getCategory(id);
         if(mCategory.getOfferList() == null) {
-            String response = new TestAppClient().fetchOffers(id,"eapteka","stage");
+            String response = new EaptekaHttpClient().fetchOffers(id,"eapteka","stage");
             mCategory.setOfferList(parseOffersJson(response));
         }
     }
@@ -72,7 +75,7 @@ public class EaptekaFetcher {
                     subCategory.getBoolean("subcategories")
             );
             subCategories.add(category);
-            if(mCategoriesRepository.getCategory(id) == null)
+            if(mRepository.getCategory(id) == null)
                 saveCategoryToRepo(category);
         }
         return subCategories;
@@ -93,9 +96,6 @@ public class EaptekaFetcher {
                     picturesUrls
             );
             offersList.add(offer);
-            /**mCategory.
-            if(mCategory.getOffer(id) == null)
-                saveOfferToRepo(offer);*/
         }
         return offersList;
     }
@@ -113,6 +113,6 @@ public class EaptekaFetcher {
     }
 
     private void saveCategoryToRepo(Category category) {
-        mCategoriesRepository.putCategory(category);
+        mRepository.addCategory(category);
     }
 }

@@ -1,4 +1,4 @@
-package su.zencode.testapp04.EaptekaApiClient;
+package su.zencode.testapp04.TestAppApiClient;
 
 import android.util.Log;
 
@@ -10,10 +10,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
-import su.zencode.testapp04.EaptekaApiClient.UrlsMap.Endpoints;
+import su.zencode.testapp04.TestAppApiClient.EaptekaUrlsMap.Endpoints;
 
-public class TestAppClient {
-    private static final String TAG = "TestAppClient";
+public class EaptekaHttpClient {
+    private static final String TAG = "EaptekaHttpClient";
 
     public String fetchSubCategories(int id, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);

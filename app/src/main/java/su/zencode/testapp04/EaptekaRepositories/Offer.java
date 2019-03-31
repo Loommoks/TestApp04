@@ -5,15 +5,16 @@ import android.graphics.Bitmap;
 public class Offer {
     private int mId;
     private String mName;
-    private String mIcon;
+    private String mIconUrl;
     private String[] mPicturesUrls;
+
     private Bitmap mIconBitmap;
 
 
-    public Offer(int id, String name, String icon, String[] pictures) {
+    public Offer(int id, String name, String iconUrl, String[] pictures) {
         mId = id;
         mName = name;
-        mIcon = icon;
+        mIconUrl = iconUrl;
         mPicturesUrls = pictures;
     }
 
@@ -25,8 +26,8 @@ public class Offer {
         return mName;
     }
 
-    public String getIcon() {
-        return mIcon;
+    public String getIconUrl() {
+        return mIconUrl;
     }
 
     public String[] getPicturesUrls() {

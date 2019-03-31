@@ -17,16 +17,18 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
+import su.zencode.testapp04.EaptekaRepositories.CacheCategoriesRepositoryI;
 import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 
 public class OffersListFragment extends Fragment {
     private static String TAG = "OffersListFragment";
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    private EaptekaCategoryRepository mCategoryRepository;
+    private IEaptekaCategoryRepository mCategoryRepository;
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
@@ -46,9 +48,9 @@ public class OffersListFragment extends Fragment {
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mCategoryRepository = CategoriesRepository.getInstance();
+        mCategoryRepository = CacheCategoriesRepositoryI.getInstance();
 
-        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
+        mOfferList = mCategoryRepository.getCategory(mCategoryId).getOfferList();
         if (mOfferList == null) {
             //todo solve null List
         }
@@ -77,7 +79,7 @@ public class OffersListFragment extends Fragment {
     }
 
     private void updateUI() {
-        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
+        mOfferList = mCategoryRepository.getCategory(mCategoryId).getOfferList();
         if(mOfferList == null) return;
 
         if(mAdapter == null) {
@@ -156,9 +158,9 @@ public class OffersListFragment extends Fragment {
 
         @Override
         protected Integer doInBackground(Integer... integers) {
-            Category category = CategoriesRepository.getInstance().get(integers[0]);
+            Category category = CacheCategoriesRepositoryI.getInstance().getCategory(integers[0]);
             if(category.getOfferList() == null)
-                new EaptekaFetcher().fetchOffers(integers[0]);
+                new EaptekaApiClient().fetchOffers(integers[0]);
 
             return integers[0];
         }

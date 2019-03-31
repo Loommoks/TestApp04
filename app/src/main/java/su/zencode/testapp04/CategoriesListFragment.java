@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,16 +14,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import su.zencode.testapp04.EaptekaRepositories.CategoriesRepository;
+import su.zencode.testapp04.EaptekaRepositories.CacheCategoriesRepositoryI;
 import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
+import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 
 public class CategoriesListFragment extends Fragment {
     private static final String TAG = "CategoriesListFragment";
     private static final String ARG_CATEGORY_ID = "category_id";
 
-    private EaptekaCategoryRepository mRepository;
+    private int mCategoryId;
+    private IEaptekaCategoryRepository mRepository;
     private RecyclerView mCategoryRecyclerView;
     private CategoryAdapter mAdapter;
     private Category mCategory;
@@ -42,16 +46,8 @@ public class CategoriesListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        int categoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-
-        mRepository = CategoriesRepository.getInstance();
-
-        mCategory = mRepository.get(categoryId);
-        if (mCategory == null && categoryId == 0) {
-            Category baseCategory = new Category(0, "base", true);
-            mRepository.put(baseCategory);
-            mCategory = baseCategory;
-        }
+        mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
+        mRepository = CacheCategoriesRepositoryI.getInstance();
     }
 
     @Nullable
@@ -63,33 +59,73 @@ public class CategoriesListFragment extends Fragment {
         mCategoryRecyclerView = view.findViewById(R.id.categories_recycler_view);
         mCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        if(mCategory.getSubCategoriesList() == null) {
-            fetchSubCategoriesTask.execute(mCategory.getId());
-        } else updateUI();
+        showProgressBar();
+        setupCategory();
+        getSubCategoriesList();
 
         return view;
+    }
+
+    private void setupCategory() {
+        mCategory = mRepository.getCategory(mCategoryId);
+        //todo <remove> check below, "base" category always must in database
+        if (mCategory == null && mCategoryId == 0) {
+            Category baseCategory = new Category(0, "base", true);
+            mRepository.addCategory(baseCategory);
+            mCategory = baseCategory;
+        }
+        //todo </remove>
+        setActivityBarTitle();
+
+    }
+
+    private void setActivityBarTitle() {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mCategory.getName());
+    }
+
+    private void showProgressBar() {
+        ((EaptekaProgressBarableActivity) getActivity()).showProgressBar();
+    }
+
+    private void hideProgressBar() {
+        ((EaptekaProgressBarableActivity) getActivity()).hideProgressBar();
+    }
+
+    private void getSubCategoriesList() {
+        //todo заменить на обращение @get к репозиторию/Lab
+        if(mCategory.getSubCategoriesList() == null) {
+            fetchSubCategoriesTask.execute(mCategory.getId());
+        } else updateCategoriesListUI();
+    }
+
+    private void setupSubCategoriesList(ArrayList<Category> subCategoriesList) {
+        updateCategoriesListUI();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        showProgressBar();
+        updateCategoriesListUI();
     }
 
-    private void updateUI() {
+    private void updateCategoriesListUI() {
         List<Category> subCategories = mCategory.getSubCategoriesList();
+        //todo remove null check after LAb&Repo update
         if(subCategories == null) return;
+        setupNewAdapterList(subCategories);
+        hideProgressBar();
+    }
 
+    private void setupNewAdapterList(List<Category> subCategories) {
+        //todo refactor: separate dataSet change & setNew Adapter
         if(mAdapter == null) {
             mAdapter = new CategoryAdapter(subCategories);
-            //mCategoryRecyclerView.setAdapter(mAdapter);
         } else {
-            //mCategoryRecyclerView.setAdapter(mAdapter);
             mAdapter.setSubCategories(subCategories);
             mAdapter.notifyDataSetChanged();
         }
         mCategoryRecyclerView.setAdapter(mAdapter);
-
     }
 
     private class CategoryHolder extends RecyclerView.ViewHolder
@@ -117,23 +153,23 @@ public class CategoriesListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if(mCategory.hasSubCategories()) {
-                Fragment newFragment = newInstance(mCategory.getId());
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.launch_activity_fragment_container, newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                startNewCategoryFragment();
             } else {
-                //todo new Activity & OffersListFragment
-                Intent intent = OffersListActivity.newIntent(getActivity(), mCategory.getId());
-                startActivity(intent);/**
-                Fragment newFragment = OffersListFragment.newInstance(mCategory.getId());
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                 */
+                startNewOffersListActivity();
             }
-            //todo обработать клик
+        }
+
+        private void startNewOffersListActivity() {
+            Intent intent = OffersListActivity.newIntent(getActivity(), mCategory.getId());
+            startActivity(intent);
+        }
+
+        private void startNewCategoryFragment() {
+            Fragment newFragment = newInstance(mCategory.getId());
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.launch_activity_fragment_container, newFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
@@ -170,16 +206,16 @@ public class CategoriesListFragment extends Fragment {
     AsyncTask<Integer,Void,Integer> fetchSubCategoriesTask = new AsyncTask<Integer, Void, Integer>() {
         @Override
         protected Integer doInBackground(Integer... values) {
-            Category category = CategoriesRepository.getInstance().get(values[0]);
+            Category category = CacheCategoriesRepositoryI.getInstance().getCategory(values[0]);
             if(category.getSubCategoriesList() == null)
-                new EaptekaFetcher().fetchSubCategories(values[0]);
+                new EaptekaApiClient().fetchSubCategories(values[0]);
 
             return values[0];
         }
 
         @Override
         protected void onPostExecute(Integer id) {
-            updateUI();
+            updateCategoriesListUI();
         }
     };
 
