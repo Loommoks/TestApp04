@@ -24,6 +24,7 @@ public class EaptekaHttpClient {
 
     public String fetchOffers(int id, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);
+        //todo x srp violation
         String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
 
         return doRequest(client, url);
@@ -36,6 +37,7 @@ public class EaptekaHttpClient {
                 .url(url)
                 .header("Content-Type","application/json")
                 .header("platform", "android")
+                //todo x inject api-key from ctor
                 .header("api-key", "i&j*3&^2TZ&d")
                 .build();
 

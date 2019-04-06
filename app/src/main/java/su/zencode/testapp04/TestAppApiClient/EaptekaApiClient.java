@@ -6,36 +6,22 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
-import su.zencode.testapp04.EaptekaRepositories.CacheCategoriesRepositoryI;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
-
+//todo x magic constants
 public class EaptekaApiClient implements IEaptekaApiClient {
-    IEaptekaCategoryRepository mRepository;
-    Category mCategory;
 
-    public EaptekaApiClient() {
-        mRepository = CacheCategoriesRepositoryI.getInstance();
+    @Override
+    public ArrayList<Category> fetchSubCategories(int id) {
+        //todo x no more 75 symbols on the line
+        String response = new EaptekaHttpClient().fetchSubCategories(id, "eapteka", "stage");
+        return parseSubCategoriesJson(response);
     }
 
     @Override
-    public void fetchSubCategories(int id) {
-        mCategory = mRepository.getCategory(id);
-        if(mCategory.getSubCategoriesList() == null) {
-            //todo add database check&load
-            String response = new EaptekaHttpClient().fetchSubCategories(id, "eapteka", "stage");
-            mCategory.setSubCategoriesList(parseSubCategoriesJson(response));
-        }
-    }
-
-    @Override
-    public void fetchOffers(int id) {
-        mCategory = mRepository.getCategory(id);
-        if(mCategory.getOfferList() == null) {
-            String response = new EaptekaHttpClient().fetchOffers(id,"eapteka","stage");
-            mCategory.setOfferList(parseOffersJson(response));
-        }
+    public ArrayList<Offer> fetchOffers(int id) {
+        String response = new EaptekaHttpClient().fetchOffers(id,"eapteka","stage");
+        return parseOffersJson(response);
     }
 
     private ArrayList<Category> parseSubCategoriesJson(String jsonBodyString) {
@@ -75,8 +61,10 @@ public class EaptekaApiClient implements IEaptekaApiClient {
                     subCategory.getBoolean("subcategories")
             );
             subCategories.add(category);
-            if(mRepository.getCategory(id) == null)
-                saveCategoryToRepo(category);
+            //todo x remove comment
+            /**
+            if(mRepository.get(id) == null)
+                saveCategoryToRepo(category);*/
         }
         return subCategories;
     }
@@ -108,11 +96,4 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         return picteresUrls;
     }
 
-    private void saveCategoryToDb(Category category) {
-
-    }
-
-    private void saveCategoryToRepo(Category category) {
-        mRepository.addCategory(category);
-    }
 }

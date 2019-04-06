@@ -17,10 +17,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import su.zencode.testapp04.EaptekaRepositories.CacheCategoriesRepositoryI;
+import su.zencode.testapp04.EaptekaRepositories.CacheableDatabaseRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
+import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
 public class CategoriesListFragment extends Fragment {
     private static final String TAG = "CategoriesListFragment";
@@ -47,7 +48,9 @@ public class CategoriesListFragment extends Fragment {
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mRepository = CacheCategoriesRepositoryI.getInstance();
+        //mRepository = CacheRepository.getInstance();
+        mRepository = CacheableDatabaseRepository.getInstance(getActivity());
+        //mRepository = DatabaseRepository.getInstance(getActivity().getApplicationContext());
     }
 
     @Nullable
@@ -60,23 +63,11 @@ public class CategoriesListFragment extends Fragment {
         mCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         showProgressBar();
-        setupCategory();
+        mCategory = mRepository.get(mCategoryId);
+        setActivityBarTitle();
         getSubCategoriesList();
 
         return view;
-    }
-
-    private void setupCategory() {
-        mCategory = mRepository.getCategory(mCategoryId);
-        //todo <remove> check below, "base" category always must in database
-        if (mCategory == null && mCategoryId == 0) {
-            Category baseCategory = new Category(0, "base", true);
-            mRepository.addCategory(baseCategory);
-            mCategory = baseCategory;
-        }
-        //todo </remove>
-        setActivityBarTitle();
-
     }
 
     private void setActivityBarTitle() {
@@ -94,6 +85,7 @@ public class CategoriesListFragment extends Fragment {
     private void getSubCategoriesList() {
         //todo заменить на обращение @get к репозиторию/Lab
         if(mCategory.getSubCategoriesList() == null) {
+            FetchSubCategoriesTask fetchSubCategoriesTask = new FetchSubCategoriesTask();
             fetchSubCategoriesTask.execute(mCategory.getId());
         } else updateCategoriesListUI();
     }
@@ -203,18 +195,25 @@ public class CategoriesListFragment extends Fragment {
         }
     }
 
-    AsyncTask<Integer,Void,Integer> fetchSubCategoriesTask = new AsyncTask<Integer, Void, Integer>() {
+    private class FetchSubCategoriesTask extends AsyncTask<Integer, Void, Integer> {
+        ArrayList<Category> mSubCategories;
+
         @Override
         protected Integer doInBackground(Integer... values) {
-            Category category = CacheCategoriesRepositoryI.getInstance().getCategory(values[0]);
-            if(category.getSubCategoriesList() == null)
-                new EaptekaApiClient().fetchSubCategories(values[0]);
+            IEaptekaApiClient apiClient = new EaptekaApiClient();
+            mSubCategories = apiClient.fetchSubCategories(values[0]);
 
             return values[0];
         }
 
         @Override
         protected void onPostExecute(Integer id) {
+            mCategory.setSubCategoriesList(mSubCategories);
+            for (Category subCategory :
+                    mSubCategories) {
+                mRepository.add(subCategory);
+            }
+            mRepository.update(mCategory);
             updateCategoriesListUI();
         }
     };

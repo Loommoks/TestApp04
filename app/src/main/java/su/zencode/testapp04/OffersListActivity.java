@@ -25,7 +25,6 @@ public class OffersListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_offers_list);
 
         int categoryId = getIntent().getExtras().getInt(EXTRA_CATEGORY_ID);
-
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.offers_activity_fragment_container);
 

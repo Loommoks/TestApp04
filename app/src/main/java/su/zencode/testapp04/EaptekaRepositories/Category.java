@@ -12,6 +12,7 @@ public class Category {
     private ArrayList<Offer> mOfferList;
     private List<Integer> mOffersIdList;
 
+    //todo x naming subcategories-> "hasSubcategories"
     public Category(int id, String name, boolean subcategories) {
         mId = id;
         mName = name;
