@@ -23,12 +23,12 @@ import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
-public class CategoriesListFragment extends Fragment {
+public class CategoriesListFragment extends Fragment implements UpdatableCategoryFragment{
     private static final String TAG = "CategoriesListFragment";
     private static final String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    private IEaptekaCategoryRepository mRepository;
+    private CategoryLab mCategoryLab;
     private RecyclerView mCategoryRecyclerView;
     private CategoryAdapter mAdapter;
     private Category mCategory;
@@ -48,9 +48,8 @@ public class CategoriesListFragment extends Fragment {
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        //mRepository = CacheRepository.getInstance();
-        mRepository = CacheableDatabaseRepository.getInstance(getActivity());
-        //mRepository = DatabaseRepository.getInstance(getActivity().getApplicationContext());
+        mCategoryLab = CategoryLab.getInstance(getActivity().getApplicationContext());
+
     }
 
     @Nullable
@@ -63,15 +62,14 @@ public class CategoriesListFragment extends Fragment {
         mCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         showProgressBar();
-        mCategory = mRepository.get(mCategoryId);
-        setActivityBarTitle();
-        getSubCategoriesList();
+        mCategoryLab.getCategory(mCategoryId, this);
 
         return view;
     }
 
     private void setActivityBarTitle() {
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mCategory.getName());
+        ((AppCompatActivity) getActivity()).getSupportActionBar()
+                .setTitle(mCategory.getName());
     }
 
     private void showProgressBar() {
@@ -82,18 +80,6 @@ public class CategoriesListFragment extends Fragment {
         ((EaptekaProgressBarableActivity) getActivity()).hideProgressBar();
     }
 
-    private void getSubCategoriesList() {
-        //todo заменить на обращение @get к репозиторию/Lab
-        if(mCategory.getSubCategoriesList() == null) {
-            FetchSubCategoriesTask fetchSubCategoriesTask = new FetchSubCategoriesTask();
-            fetchSubCategoriesTask.execute(mCategory.getId());
-        } else updateCategoriesListUI();
-    }
-
-    private void setupSubCategoriesList(ArrayList<Category> subCategoriesList) {
-        updateCategoriesListUI();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -102,9 +88,8 @@ public class CategoriesListFragment extends Fragment {
     }
 
     private void updateCategoriesListUI() {
+        if(mCategory == null) return;
         List<Category> subCategories = mCategory.getSubCategoriesList();
-        //todo remove null check after LAb&Repo update
-        if(subCategories == null) return;
         setupNewAdapterList(subCategories);
         hideProgressBar();
     }
@@ -118,6 +103,18 @@ public class CategoriesListFragment extends Fragment {
             mAdapter.notifyDataSetChanged();
         }
         mCategoryRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void setupCategory(Category category) {
+        mCategory = category;
+        setActivityBarTitle();
+    }
+
+    @Override
+    public void updateCategoryData(Category category) {
+        mCategory = category;
+        updateCategoriesListUI();
     }
 
     private class CategoryHolder extends RecyclerView.ViewHolder
@@ -194,7 +191,7 @@ public class CategoriesListFragment extends Fragment {
             mSubCategories = categories;
         }
     }
-
+    /*
     private class FetchSubCategoriesTask extends AsyncTask<Integer, Void, Integer> {
         ArrayList<Category> mSubCategories;
 
@@ -217,5 +214,5 @@ public class CategoriesListFragment extends Fragment {
             updateCategoriesListUI();
         }
     };
-
+    */
 }

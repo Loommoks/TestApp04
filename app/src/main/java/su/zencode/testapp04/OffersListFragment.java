@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,17 +20,17 @@ import java.util.List;
 
 import su.zencode.testapp04.EaptekaRepositories.CacheableDatabaseRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
-public class OffersListFragment extends Fragment {
+public class OffersListFragment extends Fragment implements UpdatableCategoryFragment{
     private static String TAG = "OffersListFragment";
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    private IEaptekaCategoryRepository mCategoryRepository;
+    //private IEaptekaCategoryRepository mCategoryRepository;
+    private CategoryLab mCategoryLab;
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
@@ -49,15 +50,9 @@ public class OffersListFragment extends Fragment {
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        //mCategoryRepository = CacheRepository.getInstance();
-        //mCategoryRepository = DatabaseRepository.getInstance(getActivity().getApplicationContext());
-        mCategoryRepository = CacheableDatabaseRepository
-                .getInstance(getActivity().getApplicationContext());
+        //mCategoryRepository = CacheableDatabaseRepository.getInstance(getActivity().getApplicationContext());
+        mCategoryLab = CategoryLab.getInstance(getActivity().getApplicationContext());
 
-        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
-        if (mOfferList == null) {
-            //todo solve null List
-        }
     }
 
     @Nullable
@@ -67,23 +62,32 @@ public class OffersListFragment extends Fragment {
 
         mOfferRecyclerView = view.findViewById(R.id.offers_recycler_view);
         mOfferRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        if(mOfferList == null) {
-            FetchOffersTask fetchOffersTask = new FetchOffersTask();
-            fetchOffersTask.execute(mCategoryId);
-        } else updateUI();
-
+        showProgressBar();
+        mCategoryLab.getCategory(mCategoryId, this);
         return view;
+    }
+
+    private void setActivityBarTitle(Category category) {
+        ((AppCompatActivity) getActivity()).getSupportActionBar()
+                .setTitle(category.getName());
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        showProgressBar();
         updateUI();
     }
 
+    private void showProgressBar() {
+        ((EaptekaProgressBarableActivity) getActivity()).showProgressBar();
+    }
+
+    private void hideProgressBar() {
+        ((EaptekaProgressBarableActivity) getActivity()).hideProgressBar();
+    }
+
     private void updateUI() {
-        mOfferList = mCategoryRepository.get(mCategoryId).getOfferList();
         if(mOfferList == null) return;
 
         if(mAdapter == null) {
@@ -94,6 +98,18 @@ public class OffersListFragment extends Fragment {
             mAdapter.notifyDataSetChanged();
         }
         mOfferRecyclerView.setAdapter(mAdapter);
+        hideProgressBar();
+    }
+
+    @Override
+    public void setupCategory(Category category) {
+        setActivityBarTitle(category);
+    }
+
+    @Override
+    public void updateCategoryData(Category category) {
+        mOfferList = category.getOfferList();
+        updateUI();
     }
 
     private class OfferHolder extends RecyclerView.ViewHolder
@@ -158,22 +174,4 @@ public class OffersListFragment extends Fragment {
         }
     }
 
-    private class FetchOffersTask extends AsyncTask<Integer, Void, Integer> {
-        ArrayList<Offer> mOffers;
-
-        @Override
-        protected Integer doInBackground(Integer... integers) {
-            IEaptekaApiClient apiClient = new EaptekaApiClient();
-            mOffers = apiClient.fetchOffers(integers[0]);
-            return integers[0];
-        }
-
-        @Override
-        protected void onPostExecute(Integer integer) {
-            Category category = mCategoryRepository.get(integer);
-            category.setOfferList(mOffers);
-            mCategoryRepository.update(category);
-            updateUI();
-        }
-    }
 }
