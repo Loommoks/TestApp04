@@ -1,5 +1,7 @@
 package su.zencode.testapp04.TestAppApiClient;
 
+import android.graphics.Bitmap;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +24,12 @@ public class EaptekaApiClient implements IEaptekaApiClient {
     public ArrayList<Offer> fetchOffers(int id) {
         String response = new EaptekaHttpClient().fetchOffers(id,"eapteka","stage");
         return parseOffersJson(response);
+    }
+
+    @Override
+    public Bitmap fetchOfferImage(String url) {
+        Bitmap bitmap = new EaptekaHttpClient().fetchImage(url, "eapteka","stage");
+        return bitmap;
     }
 
     private ArrayList<Category> parseSubCategoriesJson(String jsonBodyString) {

@@ -1,6 +1,7 @@
 package su.zencode.testapp04;
 
-import android.os.AsyncTask;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,24 +17,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import su.zencode.testapp04.EaptekaRepositories.CacheableDatabaseRepository;
+import su.zencode.testapp04.CategoryLab.IOfferLab;
+import su.zencode.testapp04.CategoryLab.OfferLab;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
-import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
-import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
-public class OffersListFragment extends Fragment implements UpdatableCategoryFragment{
+public class OffersListFragment extends Fragment implements UpdatableOffersFragment{
     private static String TAG = "OffersListFragment";
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    //private IEaptekaCategoryRepository mCategoryRepository;
-    private CategoryLab mCategoryLab;
+    private IOfferLab mOfferLab;
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
+    private HashMap<Integer, OfferHolder> mImageRequests;
 
     public static OffersListFragment newInstance(int categoryId) {
         Bundle args = new Bundle();
@@ -49,10 +50,9 @@ public class OffersListFragment extends Fragment implements UpdatableCategoryFra
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
+        mImageRequests = new HashMap<>();
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        //mCategoryRepository = CacheableDatabaseRepository.getInstance(getActivity().getApplicationContext());
-        mCategoryLab = CategoryLab.getInstance(getActivity().getApplicationContext());
-
+        mOfferLab = OfferLab.getInstance(getActivity().getApplicationContext());
     }
 
     @Nullable
@@ -63,7 +63,7 @@ public class OffersListFragment extends Fragment implements UpdatableCategoryFra
         mOfferRecyclerView = view.findViewById(R.id.offers_recycler_view);
         mOfferRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         showProgressBar();
-        mCategoryLab.getCategory(mCategoryId, this);
+        mOfferLab.getCategory(mCategoryId, this);
         return view;
     }
 
@@ -92,7 +92,6 @@ public class OffersListFragment extends Fragment implements UpdatableCategoryFra
 
         if(mAdapter == null) {
             mAdapter = new OfferAdapter(mOfferList);
-            //mOfferRecyclerView.setAdapter(mAdapter);
         } else {
             mAdapter.setOfferList(mOfferList);
             mAdapter.notifyDataSetChanged();
@@ -110,6 +109,21 @@ public class OffersListFragment extends Fragment implements UpdatableCategoryFra
     public void updateCategoryData(Category category) {
         mOfferList = category.getOfferList();
         updateUI();
+    }
+
+    @Override
+    public void updateOfferImage(Offer offer) {
+        int id = offer.getId();
+        //OfferHolder holder = mImageRequests.get(id);
+        //Drawable drawable = new BitmapDrawable(getResources(), offer.getIconBitmap());
+        //holder.setupImage(drawable);
+        mImageRequests.remove(id);
+        mAdapter.notifyItemChanged(mOfferList.indexOf(offer));
+    }
+
+    private void requestImage(Offer offer, OfferHolder holder) {
+        mImageRequests.put(offer.getId(), holder);
+        mOfferLab.getOfferImage(offer, this);
     }
 
     private class OfferHolder extends RecyclerView.ViewHolder
@@ -133,7 +147,21 @@ public class OffersListFragment extends Fragment implements UpdatableCategoryFra
             mOffer = offer;
             mIdTextView.setText(Integer.toString(mOffer.getId()));
             mTitleTextView.setText(mOffer.getName());
+            mIconImageView.setImageDrawable(
+                    getResources().getDrawable(R.drawable.placeholder_round)
+            );
             //todo image downloading
+
+            if(mOffer.getIconBitmap() == null)
+                requestImage(offer, this);
+            else {
+                Drawable drawable = new BitmapDrawable(getResources(), mOffer.getIconBitmap());
+                setupImage(drawable);
+            }
+        }
+
+        public void setupImage(Drawable drawable) {
+            mIconImageView.setImageDrawable(drawable);
         }
 
         @Override

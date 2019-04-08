@@ -1,26 +1,22 @@
 package su.zencode.testapp04.EaptekaRepositories;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 public class Category {
     private int mId;
     private String mName;
     private boolean mHasSubCategories;
     private ArrayList<Category> mSubCategoriesList;
-    private List<Integer> mSubCategoriesIdList;
     private ArrayList<Offer> mOfferList;
-    private List<Integer> mOffersIdList;
+    private Date mUploadDate;
 
-    //todo x naming subcategories-> "hasSubcategories"
-    public Category(int id, String name, boolean subcategories) {
+    public Category(int id, String name, boolean hasSubcategories) {
         mId = id;
         mName = name;
-        mHasSubCategories = subcategories;
+        mHasSubCategories = hasSubcategories;
         mSubCategoriesList = null;
-        mSubCategoriesIdList = null;
         mOfferList = null;
-        mOffersIdList = null;
     }
 
     public int getId() {
@@ -43,14 +39,6 @@ public class Category {
         mSubCategoriesList = subCategoriesList;
     }
 
-    public List<Integer> getSubCategoriesIdList() {
-        return mSubCategoriesIdList;
-    }
-
-    public void setSubCategoriesIdList(List<Integer> subCategoriesIdList) {
-        mSubCategoriesIdList = subCategoriesIdList;
-    }
-
     public Offer getOffer(int id) {
         if (mOfferList == null) return null;
         return mOfferList.get(id);
@@ -64,11 +52,12 @@ public class Category {
         mOfferList = offerList;
     }
 
-    public List<Integer> getOffersIdList() {
-        return mOffersIdList;
+
+    public Date getUploadDate() {
+        return mUploadDate;
     }
 
-    public void setOffersIdList(List<Integer> offersIdList) {
-        mOffersIdList = offersIdList;
+    public void setUploadDate(Date uploadDate) {
+        mUploadDate = uploadDate;
     }
 }

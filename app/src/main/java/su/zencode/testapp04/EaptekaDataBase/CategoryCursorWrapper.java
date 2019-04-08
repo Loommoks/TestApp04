@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Deserializer;
@@ -24,12 +25,19 @@ public class CategoryCursorWrapper extends CursorWrapper {
         Category category = new Category(id, name, (intHasSubCategories != 0));
         setSubCategoriesList(category);
         setOffersList(category);
+        setUploadDate(category);
 
         //todo load date
 
         //todo convert
 
         return category;
+    }
+
+    private void setUploadDate(Category category) {
+        long dateLong = getLong(getColumnIndex(CategoryTable.Cols.UPLOAD_DATE));
+        Date uploadDate = new Date(dateLong);
+        category.setUploadDate(uploadDate);
     }
 
     private void setOffersList(Category category) {

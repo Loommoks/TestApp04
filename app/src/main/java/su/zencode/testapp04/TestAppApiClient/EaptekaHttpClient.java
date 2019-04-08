@@ -1,8 +1,11 @@
 package su.zencode.testapp04.TestAppApiClient;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.URL;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
@@ -28,6 +31,30 @@ public class EaptekaHttpClient {
         String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
 
         return doRequest(client, url);
+    }
+
+    public Bitmap fetchImage(String urlString, String username, String password) {
+        Log.d(TAG, "Received request for Image URL: " + urlString);
+
+        OkHttpClient client = createAuthentificationClient(username, password);
+
+        Request request = new Request.Builder()
+                .url(urlString)
+                .header("Content-Type","application/json")
+                .header("platform", "android")
+                //todo x inject api-key from ctor
+                .header("api-key", "i&j*3&^2TZ&d")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            final Bitmap bitmap = BitmapFactory.decodeStream(
+                    response.body().byteStream());
+            return bitmap;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to make a OkHttp call", e);
+        }
+        return null;
     }
 
     public String doRequest(OkHttpClient client, String url) {

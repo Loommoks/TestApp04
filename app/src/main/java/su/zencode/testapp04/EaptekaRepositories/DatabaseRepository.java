@@ -7,11 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.json.JSONArray;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import su.zencode.testapp04.EaptekaDataBase.CategoryBaseHelper;
 import su.zencode.testapp04.EaptekaDataBase.CategoryCursorWrapper;
 import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema;
+import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Serializer;
 
 
@@ -37,7 +41,7 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
     public Category get(int id) {
         String idString = Integer.toString(id);
         CategoryCursorWrapper cursor = queryCategories(
-                CategoryDbSchema.CategoryTable.Cols.ID + " = ?",
+                CategoryTable.Cols.ID + " = ?",
                 new String[] { idString }
         );
 
@@ -61,7 +65,7 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
     @Override
     public void add(Category category) {
         ContentValues values = getContentValues(category);
-        mDatabase.insert(CategoryDbSchema.CategoryTable.NAME, null, values);
+        mDatabase.insert(CategoryTable.NAME, null, values);
     }
 
     @Override
@@ -69,14 +73,14 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         String id = Integer.toString(category.getId());
         ContentValues values = getContentValues(category);
 
-        mDatabase.update(CategoryDbSchema.CategoryTable.NAME, values,
-                CategoryDbSchema.CategoryTable.Cols.ID + " = ?",
+        mDatabase.update(CategoryTable.NAME, values,
+                CategoryTable.Cols.ID + " = ?",
                 new String[] {id});
     }
 
     private CategoryCursorWrapper queryCategories(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
-                CategoryDbSchema.CategoryTable.NAME,
+                CategoryTable.NAME,
                 null,
                 whereClause,
                 whereArgs,
@@ -91,11 +95,12 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
     private ContentValues getContentValues(Category category) {
         ContentValues values = new ContentValues();
         String id = Integer.toString(category.getId());
-        values.put(CategoryDbSchema.CategoryTable.Cols.ID, id);
-        values.put(CategoryDbSchema.CategoryTable.Cols.CATEGORY_NAME, category.getName());
-        values.put(CategoryDbSchema.CategoryTable.Cols.HAS_SUB_CATEGORIES, category.hasSubCategories() ? 1 : 0);
+        values.put(CategoryTable.Cols.ID, id);
+        values.put(CategoryTable.Cols.CATEGORY_NAME, category.getName());
+        values.put(CategoryTable.Cols.HAS_SUB_CATEGORIES, category.hasSubCategories() ? 1 : 0);
         putSubCategories(values, category);
         putOffersList(values, category);
+        values.put(CategoryTable.Cols.UPLOAD_DATE, getCurrentDate());
         //todo put upload date
         return values;
     }
@@ -104,11 +109,11 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         if(category.hasSubCategories()) {
             ArrayList<Category> categories = category.getSubCategoriesList();
             if(categories == null) {
-                values.putNull(CategoryDbSchema.CategoryTable.Cols.SUB_CATEGORIES_LIST);
+                values.putNull(CategoryTable.Cols.SUB_CATEGORIES_LIST);
                 return;
             }
             JSONArray subCategoryList = Serializer.getJsonSubCategoriesList(categories);
-            values.put(CategoryDbSchema.CategoryTable.Cols.SUB_CATEGORIES_LIST, subCategoryList.toString());
+            values.put(CategoryTable.Cols.SUB_CATEGORIES_LIST, subCategoryList.toString());
         }
     }
 
@@ -116,12 +121,17 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         if(!category.hasSubCategories()) {
             ArrayList<Offer> offers = category.getOfferList();
             if(offers == null) {
-                values.putNull(CategoryDbSchema.CategoryTable.Cols.OFFERS_LIST);
+                values.putNull(CategoryTable.Cols.OFFERS_LIST);
                 return;
             }
             JSONArray jsonOffers = Serializer.getJsonOffersList(offers);
-            values.put(CategoryDbSchema.CategoryTable.Cols.OFFERS_LIST, jsonOffers.toString());
+            values.put(CategoryTable.Cols.OFFERS_LIST, jsonOffers.toString());
         }
+    }
+
+    private long getCurrentDate() {
+        Date date = new Date();
+        return date.getTime();
     }
 
 

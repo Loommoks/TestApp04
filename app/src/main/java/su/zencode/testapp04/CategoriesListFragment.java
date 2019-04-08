@@ -1,7 +1,6 @@
 package su.zencode.testapp04;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,14 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import su.zencode.testapp04.EaptekaRepositories.CacheableDatabaseRepository;
+import su.zencode.testapp04.CategoryLab.CategoryLab;
 import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
-import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
-import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
 public class CategoriesListFragment extends Fragment implements UpdatableCategoryFragment{
     private static final String TAG = "CategoriesListFragment";
@@ -90,6 +85,7 @@ public class CategoriesListFragment extends Fragment implements UpdatableCategor
     private void updateCategoriesListUI() {
         if(mCategory == null) return;
         List<Category> subCategories = mCategory.getSubCategoriesList();
+        if(subCategories == null) return;
         setupNewAdapterList(subCategories);
         hideProgressBar();
     }

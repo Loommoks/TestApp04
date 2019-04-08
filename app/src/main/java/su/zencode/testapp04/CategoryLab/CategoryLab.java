@@ -1,20 +1,23 @@
-package su.zencode.testapp04;
+package su.zencode.testapp04.CategoryLab;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import su.zencode.testapp04.EaptekaRepositories.CacheRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.Config;
 import su.zencode.testapp04.EaptekaRepositories.DatabaseRepository;
 import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
+import su.zencode.testapp04.UpdatableCategoryFragment;
 
-public class CategoryLab {
+public class CategoryLab implements ICategoryLab{
     private static CategoryLab sCategoryLab;
     private IEaptekaCategoryRepository mCache;
     private IEaptekaCategoryRepository mDatabase;
@@ -37,6 +40,7 @@ public class CategoryLab {
         mUpdateCategoryDataMap = new HashMap<>();
     }
 
+    @Override
     public void getCategory(int id, UpdatableCategoryFragment updatableFragment) {
         mSetupCategoryMap.put(id,updatableFragment);
         mUpdateCategoryDataMap.put(id,updatableFragment);
@@ -59,8 +63,10 @@ public class CategoryLab {
         mCache.update(category);
         setupCategory(category);
         if(hasActualData(category)) {
-            setupCategoryData(category);
-            return;
+            if(hasActualDate(category)) {
+                setupCategoryData(category);
+                return;
+            }
         }
         new FetchCategoryDataTask(category).execute();
     }
@@ -84,6 +90,14 @@ public class CategoryLab {
         if(category.hasSubCategories())
             return (category.getSubCategoriesList() != null);
         return (category.getOfferList() != null);
+    }
+
+    private boolean hasActualDate(Category category) {
+        Date currentDate = new Date();
+        Date uploadDate = category.getUploadDate();
+        long difference = currentDate.getTime() - uploadDate.getTime();
+        long diffDays = difference/(Config.Settings.DATABASE_DATA_TTL);
+        return (diffDays < 1);
     }
 
     private void setupCategoryData(Category category) {
@@ -124,6 +138,11 @@ public class CategoryLab {
                 ArrayList<Category> subCategories =
                         apiClient.fetchSubCategories(mCategory.getId());
                 mCategory.setSubCategoriesList(subCategories);
+                for (Category subCategory :
+                        subCategories) {
+                    mDatabase.add(subCategory);
+                    mCache.add(subCategory);
+                }
             } else {
                 ArrayList<Offer> offers =
                         apiClient.fetchOffers(mCategory.getId());
@@ -137,5 +156,25 @@ public class CategoryLab {
             onCategoryFetchedFromWeb(mCategory);
         }
     }
+
+    private class FetchSubCategoriesTask extends AsyncTask<Integer, Void, Integer> {
+        ArrayList<Category> mSubCategories;
+        @Override
+        protected Integer doInBackground(Integer... values) {
+            IEaptekaApiClient apiClient = new EaptekaApiClient();
+            mSubCategories = apiClient.fetchSubCategories(values[0]);
+            for (Category subCategory :
+                    mSubCategories) {
+                mDatabase.add(subCategory);
+            }
+            return values[0];
+        }
+        @Override
+        protected void onPostExecute(Integer id) {
+            /*mCategory.setSubCategoriesList(mSubCategories);
+            mRepository.update(mCategory);
+            updateCategoriesListUI();*/
+        }
+    };
 
 }
