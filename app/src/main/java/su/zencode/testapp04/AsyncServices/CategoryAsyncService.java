@@ -155,24 +155,4 @@ public class CategoryAsyncService {
         }
     }
 
-    private class FetchSubCategoriesTask extends AsyncTask<Integer, Void, Integer> {
-        ArrayList<Category> mSubCategories;
-        @Override
-        protected Integer doInBackground(Integer... values) {
-            IEaptekaApiClient apiClient = new EaptekaApiClient();
-            mSubCategories = apiClient.fetchSubCategories(values[0]);
-            for (Category subCategory :
-                    mSubCategories) {
-                mDatabase.add(subCategory);
-            }
-            return values[0];
-        }
-        @Override
-        protected void onPostExecute(Integer id) {
-            /*mCategory.setSubCategoriesList(mSubCategories);
-            mRepository.update(mCategory);
-            updateCategoriesListUI();*/
-        }
-    };
-
 }

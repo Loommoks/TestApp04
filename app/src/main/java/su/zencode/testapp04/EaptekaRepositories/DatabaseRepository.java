@@ -45,7 +45,10 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         try {
             if (cursor.getCount() == 0) {
                 if(id == 0) {
-                    Category baseCategory = new Category(0, ROOT_CATEGORY_NAME, true);
+                    Category baseCategory = new Category(
+                            0,
+                            ROOT_CATEGORY_NAME,
+                            true);
                     add(baseCategory);
                     return baseCategory;
                 }
@@ -98,7 +101,6 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         putSubCategories(values, category);
         putOffersList(values, category);
         values.put(CategoryTable.Cols.UPLOAD_DATE, getCurrentDate());
-        //todo put upload date
         return values;
     }
 

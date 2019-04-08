@@ -8,9 +8,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 public class LaunchActivity extends AppCompatActivity implements IProgressBarableActivity {
-    private static final String TAG = "LaunchActivity22";
     private ProgressBar mProgressBar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

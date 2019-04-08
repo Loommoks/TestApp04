@@ -27,7 +27,6 @@ import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 
 public class OffersListFragment extends Fragment implements ICategoryAcceptor {
-    private static String TAG = "OffersListFragment";
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
@@ -160,7 +159,6 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
             mIconImageView.setImageDrawable(
                     getResources().getDrawable(R.drawable.placeholder_round)
             );
-            //todo image downloading
 
             Bitmap bitmap = mOffer.getIconBitmap();
             if (bitmap == null) mImageService.queueImage(this, mOffer.getIconUrl());

@@ -188,28 +188,4 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
             mSubCategories = categories;
         }
     }
-    /*
-    private class FetchSubCategoriesTask extends AsyncTask<Integer, Void, Integer> {
-        ArrayList<Category> mSubCategories;
-
-        @Override
-        protected Integer doInBackground(Integer... values) {
-            IEaptekaApiClient apiClient = new EaptekaApiClient();
-            mSubCategories = apiClient.fetchSubCategories(values[0]);
-
-            return values[0];
-        }
-
-        @Override
-        protected void onPostExecute(Integer id) {
-            mCategory.setSubCategoriesList(mSubCategories);
-            for (Category subCategory :
-                    mSubCategories) {
-                mRepository.add(subCategory);
-            }
-            mRepository.update(mCategory);
-            updateCategoriesListUI();
-        }
-    };
-    */
 }

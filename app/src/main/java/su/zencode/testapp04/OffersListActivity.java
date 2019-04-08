@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 public class OffersListActivity extends AppCompatActivity implements IProgressBarableActivity {
-    private static final String TAG = "OffersListActivity";
     private static final String EXTRA_CATEGORY_ID = "su.zencode.testapp04.category_id";
     private ProgressBar mProgressBar;
 

@@ -60,7 +60,9 @@ public class DbJsonHelper {
             return null;
         }
 
-        private static void putJsonPictures(String name, Offer offer, JSONObject jsonOffer) throws JSONException {
+        private static void putJsonPictures(String name,
+                                            Offer offer,
+                                            JSONObject jsonOffer) throws JSONException {
             JSONArray jsonPictures = new JSONArray();
             for (String picture :
                     offer.getPicturesUrls()) {

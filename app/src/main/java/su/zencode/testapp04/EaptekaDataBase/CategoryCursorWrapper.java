@@ -27,10 +27,6 @@ public class CategoryCursorWrapper extends CursorWrapper {
         setOffersList(category);
         setUploadDate(category);
 
-        //todo load date
-
-        //todo convert
-
         return category;
     }
 
