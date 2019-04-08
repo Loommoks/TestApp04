@@ -15,15 +15,16 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import su.zencode.testapp04.CategoryLab.CategoryLab;
+import su.zencode.testapp04.AsyncServices.CategoryAsyncService;
+import su.zencode.testapp04.AsyncServices.ICategoryAcceptor;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 
-public class CategoriesListFragment extends Fragment implements UpdatableCategoryFragment{
+public class CategoriesListFragment extends Fragment implements ICategoryAcceptor {
     private static final String TAG = "CategoriesListFragment";
     private static final String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    private CategoryLab mCategoryLab;
+    private CategoryAsyncService mCategoryAsyncService;
     private RecyclerView mCategoryRecyclerView;
     private CategoryAdapter mAdapter;
     private Category mCategory;
@@ -43,7 +44,7 @@ public class CategoriesListFragment extends Fragment implements UpdatableCategor
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mCategoryLab = CategoryLab.getInstance(getActivity().getApplicationContext());
+        mCategoryAsyncService = CategoryAsyncService.getInstance(getActivity().getApplicationContext());
 
     }
 
@@ -57,7 +58,7 @@ public class CategoriesListFragment extends Fragment implements UpdatableCategor
         mCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         showProgressBar();
-        mCategoryLab.getCategory(mCategoryId, this);
+        mCategoryAsyncService.getCategory(mCategoryId, this);
 
         return view;
     }
@@ -68,11 +69,11 @@ public class CategoriesListFragment extends Fragment implements UpdatableCategor
     }
 
     private void showProgressBar() {
-        ((EaptekaProgressBarableActivity) getActivity()).showProgressBar();
+        ((IProgressBarableActivity) getActivity()).showProgressBar();
     }
 
     private void hideProgressBar() {
-        ((EaptekaProgressBarableActivity) getActivity()).hideProgressBar();
+        ((IProgressBarableActivity) getActivity()).hideProgressBar();
     }
 
     @Override

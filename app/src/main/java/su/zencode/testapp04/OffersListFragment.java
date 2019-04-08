@@ -1,8 +1,8 @@
 package su.zencode.testapp04;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,17 +20,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import su.zencode.testapp04.CategoryLab.IOfferLab;
-import su.zencode.testapp04.CategoryLab.OfferLab;
+import su.zencode.testapp04.AsyncServices.CategoryAsyncService;
+import su.zencode.testapp04.AsyncServices.ICategoryAcceptor;
+import su.zencode.testapp04.AsyncServices.ImageAsyncService;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 
-public class OffersListFragment extends Fragment implements UpdatableOffersFragment{
+public class OffersListFragment extends Fragment implements ICategoryAcceptor {
     private static String TAG = "OffersListFragment";
     private static String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
-    private IOfferLab mOfferLab;
+    private CategoryAsyncService mCategoryService;
+    private ImageAsyncService<OfferHolder> mImageService;
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
@@ -52,7 +54,18 @@ public class OffersListFragment extends Fragment implements UpdatableOffersFragm
 
         mImageRequests = new HashMap<>();
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mOfferLab = OfferLab.getInstance(getActivity().getApplicationContext());
+        mCategoryService = CategoryAsyncService.getInstance(getActivity().getApplicationContext());
+        Handler responseHandler = new Handler();
+        mImageService = new ImageAsyncService<>(responseHandler);
+        mImageService.setImageDownloadListener(
+                new ImageAsyncService.IImageAsyncListener<OfferHolder>() {
+                    @Override
+                    public void onImageDownloaded(OfferHolder target, Bitmap bitmap) {
+                        target.bindImage(bitmap);
+                    }
+                });
+        mImageService.start();
+        mImageService.getLooper();
     }
 
     @Nullable
@@ -63,7 +76,7 @@ public class OffersListFragment extends Fragment implements UpdatableOffersFragm
         mOfferRecyclerView = view.findViewById(R.id.offers_recycler_view);
         mOfferRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         showProgressBar();
-        mOfferLab.getCategory(mCategoryId, this);
+        mCategoryService.getCategory(mCategoryId, this);
         return view;
     }
 
@@ -79,12 +92,24 @@ public class OffersListFragment extends Fragment implements UpdatableOffersFragm
         updateUI();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mImageService.clearQueue();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mImageService.quit();
+    }
+
     private void showProgressBar() {
-        ((EaptekaProgressBarableActivity) getActivity()).showProgressBar();
+        ((IProgressBarableActivity) getActivity()).showProgressBar();
     }
 
     private void hideProgressBar() {
-        ((EaptekaProgressBarableActivity) getActivity()).hideProgressBar();
+        ((IProgressBarableActivity) getActivity()).hideProgressBar();
     }
 
     private void updateUI() {
@@ -109,21 +134,6 @@ public class OffersListFragment extends Fragment implements UpdatableOffersFragm
     public void updateCategoryData(Category category) {
         mOfferList = category.getOfferList();
         updateUI();
-    }
-
-    @Override
-    public void updateOfferImage(Offer offer) {
-        int id = offer.getId();
-        //OfferHolder holder = mImageRequests.get(id);
-        //Drawable drawable = new BitmapDrawable(getResources(), offer.getIconBitmap());
-        //holder.setupImage(drawable);
-        mImageRequests.remove(id);
-        mAdapter.notifyItemChanged(mOfferList.indexOf(offer));
-    }
-
-    private void requestImage(Offer offer, OfferHolder holder) {
-        mImageRequests.put(offer.getId(), holder);
-        mOfferLab.getOfferImage(offer, this);
     }
 
     private class OfferHolder extends RecyclerView.ViewHolder
@@ -152,16 +162,13 @@ public class OffersListFragment extends Fragment implements UpdatableOffersFragm
             );
             //todo image downloading
 
-            if(mOffer.getIconBitmap() == null)
-                requestImage(offer, this);
-            else {
-                Drawable drawable = new BitmapDrawable(getResources(), mOffer.getIconBitmap());
-                setupImage(drawable);
-            }
+            Bitmap bitmap = mOffer.getIconBitmap();
+            if (bitmap == null) mImageService.queueImage(this, mOffer.getIconUrl());
+            else bindImage(bitmap);
         }
 
-        public void setupImage(Drawable drawable) {
-            mIconImageView.setImageDrawable(drawable);
+        public void bindImage(Bitmap bitmap) {
+            mIconImageView.setImageBitmap(bitmap);
         }
 
         @Override

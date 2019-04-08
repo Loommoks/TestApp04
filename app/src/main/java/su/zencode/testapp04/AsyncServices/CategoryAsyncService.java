@@ -1,4 +1,4 @@
-package su.zencode.testapp04.CategoryLab;
+package su.zencode.testapp04.AsyncServices;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -15,24 +15,23 @@ import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
-import su.zencode.testapp04.UpdatableCategoryFragment;
 
-public class CategoryLab implements ICategoryLab{
-    private static CategoryLab sCategoryLab;
+public class CategoryAsyncService {
+    private static CategoryAsyncService sCategoryAsyncService;
     private IEaptekaCategoryRepository mCache;
     private IEaptekaCategoryRepository mDatabase;
     private IEaptekaApiClient mApiClient;
-    private HashMap<Integer, UpdatableCategoryFragment> mSetupCategoryMap;
-    private HashMap<Integer, UpdatableCategoryFragment> mUpdateCategoryDataMap;
+    private HashMap<Integer, ICategoryAcceptor> mSetupCategoryMap;
+    private HashMap<Integer, ICategoryAcceptor> mUpdateCategoryDataMap;
 
-    public static CategoryLab getInstance(Context context) {
-        if(sCategoryLab == null){
-            sCategoryLab = new CategoryLab(context);
+    public static CategoryAsyncService getInstance(Context context) {
+        if(sCategoryAsyncService == null){
+            sCategoryAsyncService = new CategoryAsyncService(context);
         }
-        return sCategoryLab;
+        return sCategoryAsyncService;
     }
 
-    private CategoryLab(Context context) {
+    private CategoryAsyncService(Context context) {
         mCache = CacheRepository.getInstance();
         mDatabase = DatabaseRepository.getInstance(context.getApplicationContext());
         mApiClient = new EaptekaApiClient();
@@ -40,8 +39,7 @@ public class CategoryLab implements ICategoryLab{
         mUpdateCategoryDataMap = new HashMap<>();
     }
 
-    @Override
-    public void getCategory(int id, UpdatableCategoryFragment updatableFragment) {
+    public void getCategory(int id, ICategoryAcceptor updatableFragment) {
         mSetupCategoryMap.put(id,updatableFragment);
         mUpdateCategoryDataMap.put(id,updatableFragment);
         startFetch(id);
@@ -79,7 +77,7 @@ public class CategoryLab implements ICategoryLab{
     }
 
     private void setupCategory(Category category) {
-        UpdatableCategoryFragment fragment = mSetupCategoryMap.get(category.getId());
+        ICategoryAcceptor fragment = mSetupCategoryMap.get(category.getId());
         if(fragment != null) {
             fragment.setupCategory(category);
             mSetupCategoryMap.remove(category.getId());
@@ -101,7 +99,7 @@ public class CategoryLab implements ICategoryLab{
     }
 
     private void setupCategoryData(Category category) {
-        UpdatableCategoryFragment fragment = mUpdateCategoryDataMap.get(category.getId());
+        ICategoryAcceptor fragment = mUpdateCategoryDataMap.get(category.getId());
         if(fragment != null) {
             fragment.updateCategoryData(category);
             mUpdateCategoryDataMap.remove(category.getId());

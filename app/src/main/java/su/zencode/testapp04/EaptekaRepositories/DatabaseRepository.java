@@ -7,14 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import org.json.JSONArray;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 import su.zencode.testapp04.EaptekaDataBase.CategoryBaseHelper;
 import su.zencode.testapp04.EaptekaDataBase.CategoryCursorWrapper;
-import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema;
 import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Serializer;
 

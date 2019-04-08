@@ -1,6 +1,6 @@
 package su.zencode.testapp04;
 
-public interface EaptekaProgressBarableActivity {
+public interface IProgressBarableActivity {
     void showProgressBar();
     void hideProgressBar();
 }

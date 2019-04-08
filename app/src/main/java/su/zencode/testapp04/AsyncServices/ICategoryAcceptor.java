@@ -1,8 +1,8 @@
-package su.zencode.testapp04;
+package su.zencode.testapp04.AsyncServices;
 
 import su.zencode.testapp04.EaptekaRepositories.Category;
 
-public interface UpdatableCategoryFragment {
+public interface ICategoryAcceptor {
     void setupCategory(Category category);
     void updateCategoryData(Category category);
 }
