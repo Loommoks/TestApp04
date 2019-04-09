@@ -1,34 +1,50 @@
 package su.zencode.testapp04.TestAppApiClient;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
+import su.zencode.testapp04.Config.Credentials;
 import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.Config.EaptekaApiJson.DeserializeMap;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
-//todo x magic constants
+import su.zencode.testapp04.TestAppApiClient.EaptekaUrlsMap.Endpoints;
+
 public class EaptekaApiClient implements IEaptekaApiClient {
 
     @Override
     public ArrayList<Category> fetchSubCategories(int id) {
-        //todo x no more 75 symbols on the line
-        String response = new EaptekaHttpClient().fetchSubCategories(id, "eapteka", "stage");
+        String url = Endpoints.HOST + Endpoints.CATEGORIES + id;
+        String response = new EaptekaHttpClient().fetchSubCategories(
+                url,
+                Credentials.USERNAME,
+                Credentials.PASSWORD);
         return parseSubCategoriesJson(response);
     }
 
     @Override
     public ArrayList<Offer> fetchOffers(int id) {
-        String response = new EaptekaHttpClient().fetchOffers(id,"eapteka","stage");
+        String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
+        String response = new EaptekaHttpClient().fetchOffers(
+                url,
+                Credentials.USERNAME,
+                Credentials.PASSWORD);
         return parseOffersJson(response);
     }
 
     @Override
     public Bitmap fetchOfferImage(String url) {
-        Bitmap bitmap = new EaptekaHttpClient().fetchImage(url, "eapteka","stage");
+        InputStream inputStream = new EaptekaHttpClient().fetchImage(
+                url,
+                Credentials.USERNAME,
+                Credentials.PASSWORD);
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
         return bitmap;
     }
 
@@ -36,7 +52,8 @@ public class EaptekaApiClient implements IEaptekaApiClient {
 
         try {
             JSONObject jsonBody = new JSONObject(jsonBodyString);
-            JSONArray categoriesJsonArray = jsonBody.getJSONArray("categories");
+            JSONArray categoriesJsonArray =
+                    jsonBody.getJSONArray(DeserializeMap.JSON_ARRAY_SUB_CATEGORIES);
             return parseCategoriesArray(categoriesJsonArray);
 
         } catch (JSONException e) {
@@ -49,7 +66,8 @@ public class EaptekaApiClient implements IEaptekaApiClient {
     private ArrayList<Offer> parseOffersJson(String jsonBodyString) {
         try {
             JSONObject jsonBody = new JSONObject(jsonBodyString);
-            JSONArray offersJsonArray = jsonBody.getJSONArray("offers");
+            JSONArray offersJsonArray =
+                    jsonBody.getJSONArray(DeserializeMap.JSON_ARRAY_OFFERS);
             return parseOffersArray(offersJsonArray);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -58,37 +76,36 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         return null;
     }
 
-    private ArrayList<Category> parseCategoriesArray(JSONArray categoriesJsonArray) throws JSONException {
+    private ArrayList<Category> parseCategoriesArray(JSONArray categoriesJsonArray)
+            throws JSONException {
         ArrayList<Category> subCategories = new ArrayList<>();
         for(int i = 0; i < categoriesJsonArray.length(); i++) {
             JSONObject subCategory = categoriesJsonArray.getJSONObject(i);
-            int id = subCategory.getInt("id");
+            int id = subCategory.getInt(DeserializeMap.JSON_SUB_CATEGORY_ID);
             Category category = new Category(
                     id,
-                    subCategory.getString("name"),
-                    subCategory.getBoolean("subcategories")
+                    subCategory.getString(DeserializeMap.JSON_SUB_CATEGORY_NAME),
+                    subCategory.getBoolean(DeserializeMap.JSON_SUB_CATEGORY_HAS_SUBCATEGORIES)
             );
             subCategories.add(category);
-            //todo x remove comment
-            /**
-            if(mRepository.get(id) == null)
-                saveCategoryToRepo(category);*/
         }
         return subCategories;
     }
 
-    private ArrayList<Offer> parseOffersArray(JSONArray offersJsonArray) throws JSONException {
+    private ArrayList<Offer> parseOffersArray(JSONArray offersJsonArray)
+            throws JSONException {
         ArrayList<Offer> offersList = new ArrayList<>();
         for(int i = 0; i < offersJsonArray.length(); i++) {
             JSONObject offerJson = offersJsonArray.getJSONObject(i);
-            int id = offerJson.getInt("id");
-            JSONArray picturesUrlsJsonArray = offerJson.getJSONArray("pictures");
+            int id = offerJson.getInt(DeserializeMap.JSON_OFFER_ID);
+            JSONArray picturesUrlsJsonArray =
+                    offerJson.getJSONArray(DeserializeMap.JSON_OFFER_PICTURES_URLS_ARRAY);
             String[] picturesUrls = parsePicturesUrlsJSONArray(picturesUrlsJsonArray);
 
             Offer offer = new Offer(
                     id,
-                    offerJson.getString("name"),
-                    offerJson.getString("icon"),
+                    offerJson.getString(DeserializeMap.JSON_OFFER_NAME),
+                    offerJson.getString(DeserializeMap.JSON_OFFER_ICON_URL),
                     picturesUrls
             );
             offersList.add(offer);
@@ -96,7 +113,8 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         return offersList;
     }
 
-    private String[] parsePicturesUrlsJSONArray(JSONArray picturesUrlsJsonArray) throws JSONException {
+    private String[] parsePicturesUrlsJSONArray(JSONArray picturesUrlsJsonArray)
+            throws JSONException {
         String[] picteresUrls = new String[picturesUrlsJsonArray.length()];
         for(int i = 0; i < picturesUrlsJsonArray.length(); i++) {
             picteresUrls[i] = picturesUrlsJsonArray.getString(i);

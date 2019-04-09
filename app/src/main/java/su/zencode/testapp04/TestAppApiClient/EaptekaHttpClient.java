@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
@@ -13,33 +13,27 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
-import su.zencode.testapp04.TestAppApiClient.EaptekaUrlsMap.Endpoints;
 
 public class EaptekaHttpClient {
     private static final String TAG = "EaptekaHttpClient";
 
-    public String fetchSubCategories(int id, String username, String password) {
+    public String fetchSubCategories(String url, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);
-        String url = Endpoints.HOST + Endpoints.CATEGORIES + id;
-
         return doRequest(client, url);
     }
 
-    public String fetchOffers(int id, String username, String password) {
+    public String fetchOffers(String url, String username, String password) {
         OkHttpClient client = createAuthentificationClient(username, password);
-        //todo x srp violation
-        String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
-
         return doRequest(client, url);
     }
 
-    public Bitmap fetchImage(String urlString, String username, String password) {
-        Log.d(TAG, "Received request for Image URL: " + urlString);
+    public InputStream fetchImage(String url, String username, String password) {
+        Log.d(TAG, "Received request for Image URL: " + url);
 
         OkHttpClient client = createAuthentificationClient(username, password);
 
         Request request = new Request.Builder()
-                .url(urlString)
+                .url(url)
                 .header("Content-Type","application/json")
                 .header("platform", "android")
                 //todo x inject api-key from ctor
@@ -48,9 +42,10 @@ public class EaptekaHttpClient {
 
         try {
             Response response = client.newCall(request).execute();
-            final Bitmap bitmap = BitmapFactory.decodeStream(
-                    response.body().byteStream());
-            return bitmap;
+            /**final Bitmap bitmap = BitmapFactory.decodeStream(
+                    response.body().byteStream());*/
+
+            return response.body().byteStream();
         } catch (IOException e) {
             Log.e(TAG, "Failed to make a OkHttp call", e);
         }

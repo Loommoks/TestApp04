@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import su.zencode.testapp04.EaptekaRepositories.CacheRepository;
 import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.Config;
+import su.zencode.testapp04.Config;
 import su.zencode.testapp04.EaptekaRepositories.DatabaseRepository;
 import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
