@@ -2,7 +2,9 @@ package su.zencode.testapp04.EaptekaRepositories;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CacheRepository implements IEaptekaCategoryRepository {
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
+
+public class CacheRepository implements ICategoryRepository {
     private static CacheRepository sCategoriesRepository;
 
     private ConcurrentHashMap<Integer, Category> mCategories;

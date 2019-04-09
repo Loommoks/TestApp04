@@ -17,7 +17,7 @@ import java.util.List;
 
 import su.zencode.testapp04.AsyncServices.CategoryAsyncService;
 import su.zencode.testapp04.AsyncServices.ICategoryAcceptor;
-import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
 
 public class CategoriesListFragment extends Fragment implements ICategoryAcceptor {
     private static final String TAG = "CategoriesListFragment";

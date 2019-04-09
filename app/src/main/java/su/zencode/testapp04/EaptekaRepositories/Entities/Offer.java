@@ -1,4 +1,4 @@
-package su.zencode.testapp04.EaptekaRepositories;
+package su.zencode.testapp04.EaptekaRepositories.Entities;
 
 import android.graphics.Bitmap;
 

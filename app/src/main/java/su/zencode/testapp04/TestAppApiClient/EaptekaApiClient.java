@@ -13,16 +13,16 @@ import java.util.ArrayList;
 import su.zencode.testapp04.Config.EaptekaApi;
 import su.zencode.testapp04.Config.EaptekaApi.Credentials;
 import su.zencode.testapp04.Config.EaptekaUrlsMap;
-import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
 import su.zencode.testapp04.Config.EaptekaApi.JsonDeserializeMap;
-import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 
 public class EaptekaApiClient implements IEaptekaApiClient {
 
     @Override
-    public ArrayList<Category> fetchSubCategories(int id) {
+    public ArrayList<Category> getSubCategories(int id) {
         String url = EaptekaUrlsMap.HOST + EaptekaUrlsMap.CATEGORIES + id;
-        String response = new HttpClient().requestString(
+        String response = new HttpClient().getString(
                 url,
                 Credentials.USERNAME,
                 Credentials.PASSWORD,
@@ -31,9 +31,9 @@ public class EaptekaApiClient implements IEaptekaApiClient {
     }
 
     @Override
-    public ArrayList<Offer> fetchOffers(int id) {
+    public ArrayList<Offer> getOffers(int id) {
         String url = EaptekaUrlsMap.HOST + EaptekaUrlsMap.CATEGORIES + id +EaptekaUrlsMap.OFFERS;
-        String response = new HttpClient().requestString(
+        String response = new HttpClient().getString(
                 url,
                 Credentials.USERNAME,
                 Credentials.PASSWORD,
@@ -42,8 +42,8 @@ public class EaptekaApiClient implements IEaptekaApiClient {
     }
 
     @Override
-    public Bitmap fetchOfferImage(String url) {
-        InputStream inputStream = new HttpClient().requestByteStream(
+    public Bitmap getImage(String url) {
+        InputStream inputStream = new HttpClient().getByteStream(
                 url,
                 Credentials.USERNAME,
                 Credentials.PASSWORD,

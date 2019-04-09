@@ -78,7 +78,7 @@ public class ImageAsyncService<T> extends HandlerThread {
         final String url = mRequestsMap.get(target);
         if(url == null) return;
 
-        final Bitmap bitmap = mApiClient.fetchOfferImage(url);
+        final Bitmap bitmap = mApiClient.getImage(url);
         Log.i(TAG, "Bitmap loaded");
 
         mResponseHandler.post(new Runnable() {

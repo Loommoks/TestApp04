@@ -10,14 +10,16 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.Date;
 
+import su.zencode.testapp04.Config;
 import su.zencode.testapp04.Config.DbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.CategoryBaseHelper;
 import su.zencode.testapp04.EaptekaDataBase.CategoryCursorWrapper;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Serializer;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 
 
-public class DatabaseRepository implements IEaptekaCategoryRepository {
-    public static final String ROOT_CATEGORY_NAME = "Root";
+public class DatabaseRepository implements ICategoryRepository {
     private static DatabaseRepository sRepository;
     private Context mContext;
     private SQLiteDatabase mDatabase;
@@ -47,7 +49,7 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
                 if(id == 0) {
                     Category baseCategory = new Category(
                             0,
-                            ROOT_CATEGORY_NAME,
+                            Config.DbSchema.ROOT_CATEGORY_NAME,
                             true);
                     add(baseCategory);
                     return baseCategory;
@@ -132,6 +134,4 @@ public class DatabaseRepository implements IEaptekaCategoryRepository {
         Date date = new Date();
         return date.getTime();
     }
-
-
 }

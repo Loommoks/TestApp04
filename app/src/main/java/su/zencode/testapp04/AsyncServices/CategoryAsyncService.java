@@ -8,18 +8,18 @@ import java.util.Date;
 import java.util.HashMap;
 
 import su.zencode.testapp04.EaptekaRepositories.CacheRepository;
-import su.zencode.testapp04.EaptekaRepositories.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
 import su.zencode.testapp04.Config;
 import su.zencode.testapp04.EaptekaRepositories.DatabaseRepository;
-import su.zencode.testapp04.EaptekaRepositories.IEaptekaCategoryRepository;
-import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.EaptekaRepositories.ICategoryRepository;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 import su.zencode.testapp04.TestAppApiClient.EaptekaApiClient;
 import su.zencode.testapp04.TestAppApiClient.IEaptekaApiClient;
 
 public class CategoryAsyncService {
     private static CategoryAsyncService sCategoryAsyncService;
-    private IEaptekaCategoryRepository mCache;
-    private IEaptekaCategoryRepository mDatabase;
+    private ICategoryRepository mCache;
+    private ICategoryRepository mDatabase;
     private IEaptekaApiClient mApiClient;
     private HashMap<Integer, ICategoryAcceptor> mSetupCategoryMap;
     private HashMap<Integer, ICategoryAcceptor> mUpdateCategoryDataMap;
@@ -126,7 +126,7 @@ public class CategoryAsyncService {
         protected Void doInBackground(Void... voids) {
             if(mCategory.hasSubCategories()) {
                 ArrayList<Category> subCategories =
-                        mApiClient.fetchSubCategories(mCategory.getId());
+                        mApiClient.getSubCategories(mCategory.getId());
                 mCategory.setSubCategoriesList(subCategories);
                 for (Category subCategory :
                         subCategories) {
@@ -135,7 +135,7 @@ public class CategoryAsyncService {
                 }
             } else {
                 ArrayList<Offer> offers =
-                        mApiClient.fetchOffers(mCategory.getId());
+                        mApiClient.getOffers(mCategory.getId());
                 mCategory.setOfferList(offers);
                 mDatabase.update(mCategory);
             }

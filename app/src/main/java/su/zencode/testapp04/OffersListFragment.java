@@ -23,8 +23,8 @@ import java.util.List;
 import su.zencode.testapp04.AsyncServices.CategoryAsyncService;
 import su.zencode.testapp04.AsyncServices.ICategoryAcceptor;
 import su.zencode.testapp04.AsyncServices.ImageAsyncService;
-import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 
 public class OffersListFragment extends Fragment implements ICategoryAcceptor {
     private static String ARG_CATEGORY_ID = "category_id";

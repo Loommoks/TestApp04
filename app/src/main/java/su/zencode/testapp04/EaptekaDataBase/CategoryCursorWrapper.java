@@ -8,8 +8,8 @@ import java.util.Date;
 
 import su.zencode.testapp04.Config.DbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Deserializer;
-import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 
 public class CategoryCursorWrapper extends CursorWrapper {
 

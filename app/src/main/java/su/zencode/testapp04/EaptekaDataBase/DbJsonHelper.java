@@ -9,15 +9,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import su.zencode.testapp04.Config.DbSchema.CategoryTable.JsonSerialisation;
-import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.EaptekaRepositories.Offer;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
+import su.zencode.testapp04.EaptekaRepositories.Entities.Offer;
 
 public class DbJsonHelper {
 
 
     public static class Serializer {
 
-        public static JSONArray getJsonSubCategoriesList(ArrayList<Category> subCategoriesList) {
+        public static JSONArray getJsonSubCategoriesList
+                (ArrayList<Category> subCategoriesList) {
             JSONArray jsonArray = new JSONArray();
             for (Category category:
                     subCategoriesList) {

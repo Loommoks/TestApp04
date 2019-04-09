@@ -23,19 +23,19 @@ public class HttpClient {
     public static final String API_KEY_NAME = "api-key";
     public static final String AUTHORIZATION = "Authorization";
 
-    public String requestString(String url, String username, String password, String apiKey) {
+    public String getString(String url, String username, String password, String apiKey) {
         OkHttpClient client = createAuthentificationClient(username, password);
-        return doRequest(client, url, apiKey);
+        return requestString(client, url, apiKey);
     }
 
-    public InputStream requestByteStream(String url, String username, String password, String apiKey) {
-        Log.d(TAG, "Received request for Image URL: " + url);
-
+    public InputStream getByteStream(String url, String username, String password, String apiKey) {
         OkHttpClient client = createAuthentificationClient(username, password);
-        Request request = getRequest(url, apiKey);
+        return requestByteStream(client, url, apiKey);
+    }
 
+    private InputStream requestByteStream(OkHttpClient client, String url, String apiKey) {
         try {
-            Response response = client.newCall(request).execute();
+            Response response = getResponse(client, url, apiKey);
             if(response.isSuccessful())
                 return response.body().byteStream();
         } catch (IOException e) {
@@ -44,20 +44,23 @@ public class HttpClient {
         return null;
     }
 
-    private String doRequest(OkHttpClient client, String url, String apiKey) {
-        Log.d(TAG, "Received request for URL: " + url);
-
-        Request request = getRequest(url, apiKey);
-
+    private String requestString(OkHttpClient client, String url, String apiKey) {
         try {
-            Response response = client.newCall(request).execute();
+            Response response = getResponse(client, url, apiKey);
             if(response.isSuccessful())
                 return response.body().string();
         } catch (IOException e) {
             Log.e(TAG, "Failed to make a OkHttp call", e);
         }
-
         return null;
+    }
+
+    private Response getResponse(OkHttpClient client, String url, String apiKey)
+            throws IOException{
+        Request request = getRequest(url, apiKey);
+        Response response = client.newCall(request).execute();
+        return response;
+
     }
 
     private static OkHttpClient createAuthentificationClient(

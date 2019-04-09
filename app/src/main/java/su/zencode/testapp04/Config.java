@@ -43,6 +43,9 @@ public class Config {
     }
 
     public static class DbSchema {
+
+        public static final String ROOT_CATEGORY_NAME = "Root";
+
         public static final class CategoryTable {
             public static final String NAME = "categories";
 
