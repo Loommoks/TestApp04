@@ -8,11 +8,11 @@
     card_view:cardElevation="4dp"
     card_view:cardCornerRadius="4dp"
     >
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/offer_icon"
@@ -21,19 +21,31 @@
             android:layout_height="100dp"
             android:scaleType="centerInside"/>
 
-        <TextView
-            android:id="@+id/offer_id"
-            android:gravity="center_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/offer_title"
-            android:gravity="center_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/offer_id"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/offer_title"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
 
     </LinearLayout>
+
 
 
 </android.support.v7.widget.CardView>

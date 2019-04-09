@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import su.zencode.testapp04.AsyncServices.CategoryAsyncService;
@@ -35,7 +34,6 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
     private ArrayList<Offer> mOfferList;
     private RecyclerView mOfferRecyclerView;
     private OfferAdapter mAdapter;
-    private HashMap<Integer, OfferHolder> mImageRequests;
 
     public static OffersListFragment newInstance(int categoryId) {
         Bundle args = new Bundle();
@@ -51,16 +49,15 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        mImageRequests = new HashMap<>();
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mCategoryService = CategoryAsyncService.getInstance(getActivity().getApplicationContext());
-        Handler responseHandler = new Handler();
-        mImageService = new ImageAsyncService<>(responseHandler);
+        mCategoryService = CategoryAsyncService.getInstance(getActivity());
+
+        mImageService = new ImageAsyncService<>(new Handler());
         mImageService.setImageAcceptor(
                 new ImageAsyncService.IImageAcceptor<OfferHolder>() {
                     @Override
-                    public void onImageDownloaded(OfferHolder target, Bitmap bitmap) {
-                        target.bindImage(bitmap);
+                    public void onImageDownloaded(OfferHolder target, String url, Bitmap bitmap) {
+                        target.bindImage(bitmap, url);
                     }
                 });
         mImageService.start();
@@ -69,7 +66,7 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_offer_list, container, false);
 
         mOfferRecyclerView = view.findViewById(R.id.offers_recycler_view);
@@ -121,8 +118,8 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
             mAdapter.setOfferList(mOfferList);
             mAdapter.notifyDataSetChanged();
         }
-        mOfferRecyclerView.setAdapter(mAdapter);
         hideProgressBar();
+        mOfferRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -169,10 +166,11 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
 
             Bitmap bitmap = mOffer.getIconBitmap();
             if (bitmap == null) mImageService.queueImage(this, mOffer.getIconUrl());
-            else bindImage(bitmap);
+            else mIconImageView.setImageBitmap(bitmap);
         }
 
-        public void bindImage(Bitmap bitmap) {
+        public void bindImage(Bitmap bitmap, String url) {
+            if(mOffer.getIconUrl() != url) return;
             mOffer.setIconBitmap(bitmap);
             mIconImageView.setImageBitmap(bitmap);
         }

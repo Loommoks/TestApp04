@@ -20,7 +20,6 @@ import su.zencode.testapp04.AsyncServices.ICategoryAcceptor;
 import su.zencode.testapp04.EaptekaRepositories.Entities.Category;
 
 public class CategoriesListFragment extends Fragment implements ICategoryAcceptor {
-    private static final String TAG = "CategoriesListFragment";
     private static final String ARG_CATEGORY_ID = "category_id";
 
     private int mCategoryId;
@@ -32,7 +31,6 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
     public static CategoriesListFragment newInstance(int categoryId) {
         Bundle args = new Bundle();
         args.putInt(ARG_CATEGORY_ID, categoryId);
-
         CategoriesListFragment fragment = new CategoriesListFragment();
         fragment.setArguments(args);
         return fragment;
@@ -44,8 +42,8 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
         setRetainInstance(true);
 
         mCategoryId = getArguments().getInt(ARG_CATEGORY_ID, 0);
-        mCategoryAsyncService = CategoryAsyncService.getInstance(getActivity().getApplicationContext());
-
+        mCategoryAsyncService =
+                CategoryAsyncService.getInstance(getActivity());
     }
 
     @Nullable
@@ -56,10 +54,8 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
         View view = inflater.inflate(R.layout.fragment_category_list,container,false);
         mCategoryRecyclerView = view.findViewById(R.id.categories_recycler_view);
         mCategoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         showProgressBar();
         mCategoryAsyncService.getCategory(mCategoryId, this);
-
         return view;
     }
 
@@ -137,11 +133,8 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
 
         @Override
         public void onClick(View v) {
-            if(mCategory.hasSubCategories()) {
-                startNewCategoryFragment();
-            } else {
-                startNewOffersListActivity();
-            }
+            if(mCategory.hasSubCategories()) startNewCategoryFragment();
+            else startNewOffersListActivity();
         }
 
         private void startNewOffersListActivity() {

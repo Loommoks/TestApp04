@@ -24,7 +24,7 @@ public class ImageAsyncService<T> extends HandlerThread {
     private IEaptekaApiClient mApiClient;
 
     public interface IImageAcceptor<T> {
-        void onImageDownloaded(T target, Bitmap bitmap);
+        void onImageDownloaded(T target, String url, Bitmap bitmap);
     }
 
     public void setImageAcceptor(IImageAcceptor<T> listener) {
@@ -84,13 +84,9 @@ public class ImageAsyncService<T> extends HandlerThread {
         mResponseHandler.post(new Runnable() {
             @Override
             public void run() {
-                if(mRequestsMap.get(target) != url ||
-                        mHasQuit) {
-                    return;
-                }
-
+                if(mHasQuit) return;
                 mRequestsMap.remove(target);
-                mImageAcceptor.onImageDownloaded(target, bitmap);
+                mImageAcceptor.onImageDownloaded(target, url, bitmap);
             }
         });
     }
