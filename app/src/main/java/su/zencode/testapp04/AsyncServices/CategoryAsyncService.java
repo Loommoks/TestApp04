@@ -39,74 +39,67 @@ public class CategoryAsyncService {
         mUpdateCategoryDataMap = new HashMap<>();
     }
 
-    public void getCategory(int id, ICategoryAcceptor updatableFragment) {
-        mSetupCategoryMap.put(id,updatableFragment);
-        mUpdateCategoryDataMap.put(id,updatableFragment);
+    public void getCategory(int id, ICategoryAcceptor categoryAcceptor) {
+        mSetupCategoryMap.put(id,categoryAcceptor);
+        mUpdateCategoryDataMap.put(id,categoryAcceptor);
         startFetch(id);
     }
 
     private void startFetch(int id) {
         Category category = mCache.get(id);
         if(category != null) {
-            setupCategory(category);
-            if(hasActualData(category)) {
-                setupCategoryData(category);
+            dispatchCategory(category);
+            if(!category.isEmpty()) {
+                dispatchCategoryData(category);
                 return;
             }
         }
-        new FetchDatabaseCategoryTask().execute(id);
+        new CategoryDatabaseFetchTask().execute(id);
     }
 
     private void onCategoryFetchedFromDatabase(Category category) {
         mCache.update(category);
-        setupCategory(category);
-        if(hasActualData(category)) {
-            if(hasActualDate(category)) {
-                setupCategoryData(category);
+        dispatchCategory(category);
+        if(!category.isEmpty()) {
+            if(!isExpired(category)) {
+                dispatchCategoryData(category);
                 return;
             }
         }
-        new FetchCategoryDataTask(category).execute();
+        new CategoryDataWebFetchTask(category).execute();
     }
 
     private void onCategoryFetchedFromWeb(Category category) {
         mCache.update(category);
         mDatabase.update(category);
-        setupCategoryData(category);
+        dispatchCategoryData(category);
         return;
     }
 
-    private void setupCategory(Category category) {
-        ICategoryAcceptor fragment = mSetupCategoryMap.get(category.getId());
-        if(fragment != null) {
-            fragment.setupCategory(category);
+    private void dispatchCategory(Category category) {
+        ICategoryAcceptor acceptor = mSetupCategoryMap.get(category.getId());
+        if(acceptor != null) {
+            acceptor.initializeCategory(category);
             mSetupCategoryMap.remove(category.getId());
         }
     }
 
-    private boolean hasActualData(Category category) {
-        if(category.hasSubCategories())
-            return (category.getSubCategoriesList() != null);
-        return (category.getOfferList() != null);
-    }
-
-    private boolean hasActualDate(Category category) {
-        Date currentDate = new Date();
-        Date uploadDate = category.getUploadDate();
-        long difference = currentDate.getTime() - uploadDate.getTime();
-        long diffDays = difference/(Config.Settings.DATABASE_DATA_TTL);
-        return (diffDays < 1);
-    }
-
-    private void setupCategoryData(Category category) {
-        ICategoryAcceptor fragment = mUpdateCategoryDataMap.get(category.getId());
-        if(fragment != null) {
-            fragment.updateCategoryData(category);
+    private void dispatchCategoryData(Category category) {
+        ICategoryAcceptor acceptor = mUpdateCategoryDataMap.get(category.getId());
+        if(acceptor != null) {
+            acceptor.updateCategoryData(category);
             mUpdateCategoryDataMap.remove(category.getId());
         }
     }
 
-    private class FetchDatabaseCategoryTask extends AsyncTask<Integer, Void, Integer> {
+    private boolean isExpired(Category category) {
+        Date currentDate = new Date();
+        Date uploadDate = category.getUploadDate();
+        long difference = currentDate.getTime() - uploadDate.getTime();
+        return (difference > Config.Settings.DATABASE_DATA_TTL);
+    }
+
+    private class CategoryDatabaseFetchTask extends AsyncTask<Integer, Void, Integer> {
         Category mCategory;
 
         @Override
@@ -122,29 +115,29 @@ public class CategoryAsyncService {
         }
     }
 
-    private class FetchCategoryDataTask extends AsyncTask<Void, Void, Void> {
+    private class CategoryDataWebFetchTask extends AsyncTask<Void, Void, Void> {
         Category mCategory;
 
-        public FetchCategoryDataTask(Category category) {
+        public CategoryDataWebFetchTask(Category category) {
             mCategory = category;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            IEaptekaApiClient apiClient = new EaptekaApiClient();
             if(mCategory.hasSubCategories()) {
                 ArrayList<Category> subCategories =
-                        apiClient.fetchSubCategories(mCategory.getId());
+                        mApiClient.fetchSubCategories(mCategory.getId());
                 mCategory.setSubCategoriesList(subCategories);
                 for (Category subCategory :
                         subCategories) {
-                    mDatabase.add(subCategory);
                     mCache.add(subCategory);
+                    mDatabase.add(subCategory);
                 }
             } else {
                 ArrayList<Offer> offers =
-                        apiClient.fetchOffers(mCategory.getId());
+                        mApiClient.fetchOffers(mCategory.getId());
                 mCategory.setOfferList(offers);
+                mDatabase.update(mCategory);
             }
             return null;
         }

@@ -60,4 +60,9 @@ public class Category {
     public void setUploadDate(Date uploadDate) {
         mUploadDate = uploadDate;
     }
+
+    public boolean isEmpty() {
+        if(mHasSubCategories) return (mSubCategoriesList == null);
+        else return (mOfferList == null);
+    }
 }

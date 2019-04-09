@@ -56,8 +56,8 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
         mCategoryService = CategoryAsyncService.getInstance(getActivity().getApplicationContext());
         Handler responseHandler = new Handler();
         mImageService = new ImageAsyncService<>(responseHandler);
-        mImageService.setImageDownloadListener(
-                new ImageAsyncService.IImageAsyncListener<OfferHolder>() {
+        mImageService.setImageAcceptor(
+                new ImageAsyncService.IImageAcceptor<OfferHolder>() {
                     @Override
                     public void onImageDownloaded(OfferHolder target, Bitmap bitmap) {
                         target.bindImage(bitmap);
@@ -112,6 +112,7 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
     }
 
     private void updateUI() {
+
         if(mOfferList == null) return;
 
         if(mAdapter == null) {
@@ -125,14 +126,20 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
     }
 
     @Override
-    public void setupCategory(Category category) {
+    public void initializeCategory(Category category) {
+        if(!activityBinded()) return;
         setActivityBarTitle(category);
     }
 
     @Override
     public void updateCategoryData(Category category) {
         mOfferList = category.getOfferList();
+        if(!activityBinded()) return;
         updateUI();
+    }
+
+    private boolean activityBinded() {
+        return (getActivity() != null);
     }
 
     private class OfferHolder extends RecyclerView.ViewHolder
@@ -166,6 +173,7 @@ public class OffersListFragment extends Fragment implements ICategoryAcceptor {
         }
 
         public void bindImage(Bitmap bitmap) {
+            mOffer.setIconBitmap(bitmap);
             mIconImageView.setImageBitmap(bitmap);
         }
 

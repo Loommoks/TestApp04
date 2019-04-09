@@ -8,21 +8,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import su.zencode.testapp04.Config.DbSchema.CategoryTable.JsonSerialisation;
 import su.zencode.testapp04.EaptekaRepositories.Category;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
 
 public class DbJsonHelper {
 
-    //todo <moveTo> .Config
-    public static final String JSON_OFFER_ID = "id";
-    public static final String JSON_OFFER_NAME = "name";
-    public static final String JSON_OFFER_ICON = "icon";
-    public static final String JSON_OFFER_PICTURES = "pictures";
-
-    public static final String JSON_CATEGORY_ID = "id";
-    public static final String JSON_CATEGORY_NAME = "name";
-    public static final String JSON_CATEGORY_HAS_SUBCATEGORIES = "subcategories";
-    //todo </moveTo>
 
     public static class Serializer {
 
@@ -49,10 +40,10 @@ public class DbJsonHelper {
         private static JSONObject getJsonOffer(Offer offer) {
             try {
                 JSONObject jsonOffer = new JSONObject();
-                jsonOffer.put(JSON_OFFER_ID,offer.getId());
-                jsonOffer.put(JSON_OFFER_NAME,offer.getName());
-                jsonOffer.put(JSON_OFFER_ICON, offer.getIconUrl());
-                putJsonPictures(JSON_OFFER_PICTURES, offer, jsonOffer);
+                jsonOffer.put(JsonSerialisation.JSON_OFFER_ID,offer.getId());
+                jsonOffer.put(JsonSerialisation.JSON_OFFER_NAME,offer.getName());
+                jsonOffer.put(JsonSerialisation.JSON_OFFER_ICON, offer.getIconUrl());
+                putJsonPictures(JsonSerialisation.JSON_OFFER_PICTURES, offer, jsonOffer);
                 return jsonOffer;
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -74,9 +65,9 @@ public class DbJsonHelper {
         private static JSONObject getCuttedJSONCategory(Category category) {
             try {
                 JSONObject jsonCategory = new JSONObject();
-                jsonCategory.put(JSON_CATEGORY_ID, category.getId());
-                jsonCategory.put(JSON_CATEGORY_NAME, category.getName());
-                jsonCategory.put(JSON_CATEGORY_HAS_SUBCATEGORIES, category.hasSubCategories());
+                jsonCategory.put(JsonSerialisation.JSON_CATEGORY_ID, category.getId());
+                jsonCategory.put(JsonSerialisation.JSON_CATEGORY_NAME, category.getName());
+                jsonCategory.put(JsonSerialisation.JSON_CATEGORY_HAS_SUBCATEGORIES, category.hasSubCategories());
                 return jsonCategory;
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -122,9 +113,9 @@ public class DbJsonHelper {
 
         private static Category parseJsonSubCategory(JSONObject jsonCategory) {
             try {
-                int id = jsonCategory.getInt(JSON_CATEGORY_ID);
-                String name = jsonCategory.getString(JSON_CATEGORY_NAME);
-                boolean hasSubCategories = jsonCategory.getBoolean(JSON_CATEGORY_HAS_SUBCATEGORIES);
+                int id = jsonCategory.getInt(JsonSerialisation.JSON_CATEGORY_ID);
+                String name = jsonCategory.getString(JsonSerialisation.JSON_CATEGORY_NAME);
+                boolean hasSubCategories = jsonCategory.getBoolean(JsonSerialisation.JSON_CATEGORY_HAS_SUBCATEGORIES);
                 return new Category(id, name, hasSubCategories);
             } catch (JSONException e) {
                 Log.e("CategoryCursorWrapper", "Failed to parse subcategory", e);
@@ -135,10 +126,10 @@ public class DbJsonHelper {
 
         private static Offer parseJsonOffer(JSONObject jsonOffer) {
             try {
-                int id = jsonOffer.getInt(JSON_OFFER_ID);
-                String name = jsonOffer.getString(JSON_OFFER_NAME);
-                String icon = jsonOffer.getString(JSON_OFFER_ICON);
-                String[] pictures = getPictures(JSON_OFFER_PICTURES,jsonOffer);
+                int id = jsonOffer.getInt(JsonSerialisation.JSON_OFFER_ID);
+                String name = jsonOffer.getString(JsonSerialisation.JSON_OFFER_NAME);
+                String icon = jsonOffer.getString(JsonSerialisation.JSON_OFFER_ICON);
+                String[] pictures = getPictures(JsonSerialisation.JSON_OFFER_PICTURES,jsonOffer);
                 return new Offer(id, name, icon, pictures);
             } catch (JSONException e) {
                 Log.e("CategoryCursorWrapper", "Failed to parse Json Offer", e);

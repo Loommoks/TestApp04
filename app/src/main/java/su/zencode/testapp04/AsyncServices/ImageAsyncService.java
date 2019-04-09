@@ -19,16 +19,16 @@ public class ImageAsyncService<T> extends HandlerThread {
     private boolean mHasQuit = false;
     private Handler mRequestHandler;
     private ConcurrentMap<T, String> mRequestsMap = new ConcurrentHashMap<>();
-    private IImageAsyncListener<T> mImageAsyncListener;
+    private IImageAcceptor<T> mImageAcceptor;
     private Handler mResponseHandler;
     private IEaptekaApiClient mApiClient;
 
-    public interface IImageAsyncListener<T> {
+    public interface IImageAcceptor<T> {
         void onImageDownloaded(T target, Bitmap bitmap);
     }
 
-    public void setImageDownloadListener(IImageAsyncListener<T> listener) {
-        mImageAsyncListener = listener;
+    public void setImageAcceptor(IImageAcceptor<T> listener) {
+        mImageAcceptor = listener;
     }
 
     public ImageAsyncService(Handler responseHandler) {
@@ -90,7 +90,7 @@ public class ImageAsyncService<T> extends HandlerThread {
                 }
 
                 mRequestsMap.remove(target);
-                mImageAsyncListener.onImageDownloaded(target, bitmap);
+                mImageAcceptor.onImageDownloaded(target, bitmap);
             }
         });
     }

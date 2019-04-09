@@ -2,10 +2,8 @@ package su.zencode.testapp04.EaptekaRepositories;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-//todo x Комментировать неочевидные публичные методы и неочевидные внтренние алгоритмы
 public class CacheRepository implements IEaptekaCategoryRepository {
     private static CacheRepository sCategoriesRepository;
-    private static final String TAG = ".CacheRepository";
 
     private ConcurrentHashMap<Integer, Category> mCategories;
 
@@ -13,7 +11,6 @@ public class CacheRepository implements IEaptekaCategoryRepository {
         if(sCategoriesRepository == null) {
             sCategoriesRepository = new CacheRepository();
         }
-
         return sCategoriesRepository;
     }
 

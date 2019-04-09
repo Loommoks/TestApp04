@@ -87,12 +87,11 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
         if(mCategory == null) return;
         List<Category> subCategories = mCategory.getSubCategoriesList();
         if(subCategories == null) return;
-        setupNewAdapterList(subCategories);
         hideProgressBar();
+        setupNewAdapterList(subCategories);
     }
 
     private void setupNewAdapterList(List<Category> subCategories) {
-        //todo refactor: separate dataSet change & setNew Adapter
         if(mAdapter == null) {
             mAdapter = new CategoryAdapter(subCategories);
         } else {
@@ -103,7 +102,7 @@ public class CategoriesListFragment extends Fragment implements ICategoryAccepto
     }
 
     @Override
-    public void setupCategory(Category category) {
+    public void initializeCategory(Category category) {
         mCategory = category;
         setActivityBarTitle();
     }

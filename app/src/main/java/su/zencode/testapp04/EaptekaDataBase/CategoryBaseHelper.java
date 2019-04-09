@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema.CategoryTable;
+import su.zencode.testapp04.Config.DbSchema.CategoryTable;
 
 public class CategoryBaseHelper extends SQLiteOpenHelper {
     private static final int VERSION = 1;

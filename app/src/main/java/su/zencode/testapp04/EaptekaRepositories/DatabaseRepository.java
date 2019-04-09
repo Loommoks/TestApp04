@@ -10,9 +10,9 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.Date;
 
+import su.zencode.testapp04.Config.DbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.CategoryBaseHelper;
 import su.zencode.testapp04.EaptekaDataBase.CategoryCursorWrapper;
-import su.zencode.testapp04.EaptekaDataBase.CategoryDbSchema.CategoryTable;
 import su.zencode.testapp04.EaptekaDataBase.DbJsonHelper.Serializer;
 
 

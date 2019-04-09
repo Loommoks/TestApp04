@@ -10,42 +10,45 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import su.zencode.testapp04.Config.Credentials;
+import su.zencode.testapp04.Config.EaptekaApi;
+import su.zencode.testapp04.Config.EaptekaApi.Credentials;
+import su.zencode.testapp04.Config.EaptekaUrlsMap;
 import su.zencode.testapp04.EaptekaRepositories.Category;
-import su.zencode.testapp04.Config.EaptekaApiJson.DeserializeMap;
+import su.zencode.testapp04.Config.EaptekaApi.JsonDeserializeMap;
 import su.zencode.testapp04.EaptekaRepositories.Offer;
-import su.zencode.testapp04.TestAppApiClient.EaptekaUrlsMap.Endpoints;
 
 public class EaptekaApiClient implements IEaptekaApiClient {
 
     @Override
     public ArrayList<Category> fetchSubCategories(int id) {
-        String url = Endpoints.HOST + Endpoints.CATEGORIES + id;
-        String response = new EaptekaHttpClient().fetchSubCategories(
+        String url = EaptekaUrlsMap.HOST + EaptekaUrlsMap.CATEGORIES + id;
+        String response = new HttpClient().requestString(
                 url,
                 Credentials.USERNAME,
-                Credentials.PASSWORD);
+                Credentials.PASSWORD,
+                EaptekaApi.API_KEY );
         return parseSubCategoriesJson(response);
     }
 
     @Override
     public ArrayList<Offer> fetchOffers(int id) {
-        String url = Endpoints.HOST + Endpoints.CATEGORIES + id +Endpoints.OFFERS;
-        String response = new EaptekaHttpClient().fetchOffers(
+        String url = EaptekaUrlsMap.HOST + EaptekaUrlsMap.CATEGORIES + id +EaptekaUrlsMap.OFFERS;
+        String response = new HttpClient().requestString(
                 url,
                 Credentials.USERNAME,
-                Credentials.PASSWORD);
+                Credentials.PASSWORD,
+                EaptekaApi.API_KEY );
         return parseOffersJson(response);
     }
 
     @Override
     public Bitmap fetchOfferImage(String url) {
-        InputStream inputStream = new EaptekaHttpClient().fetchImage(
+        InputStream inputStream = new HttpClient().requestByteStream(
                 url,
                 Credentials.USERNAME,
-                Credentials.PASSWORD);
-        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-        return bitmap;
+                Credentials.PASSWORD,
+                EaptekaApi.API_KEY );
+        return BitmapFactory.decodeStream(inputStream);
     }
 
     private ArrayList<Category> parseSubCategoriesJson(String jsonBodyString) {
@@ -53,7 +56,7 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         try {
             JSONObject jsonBody = new JSONObject(jsonBodyString);
             JSONArray categoriesJsonArray =
-                    jsonBody.getJSONArray(DeserializeMap.JSON_ARRAY_SUB_CATEGORIES);
+                    jsonBody.getJSONArray(JsonDeserializeMap.JSON_ARRAY_SUB_CATEGORIES);
             return parseCategoriesArray(categoriesJsonArray);
 
         } catch (JSONException e) {
@@ -67,7 +70,7 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         try {
             JSONObject jsonBody = new JSONObject(jsonBodyString);
             JSONArray offersJsonArray =
-                    jsonBody.getJSONArray(DeserializeMap.JSON_ARRAY_OFFERS);
+                    jsonBody.getJSONArray(JsonDeserializeMap.JSON_ARRAY_OFFERS);
             return parseOffersArray(offersJsonArray);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -81,11 +84,12 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         ArrayList<Category> subCategories = new ArrayList<>();
         for(int i = 0; i < categoriesJsonArray.length(); i++) {
             JSONObject subCategory = categoriesJsonArray.getJSONObject(i);
-            int id = subCategory.getInt(DeserializeMap.JSON_SUB_CATEGORY_ID);
+            int id = subCategory.getInt(JsonDeserializeMap.JSON_SUB_CATEGORY_ID);
             Category category = new Category(
                     id,
-                    subCategory.getString(DeserializeMap.JSON_SUB_CATEGORY_NAME),
-                    subCategory.getBoolean(DeserializeMap.JSON_SUB_CATEGORY_HAS_SUBCATEGORIES)
+                    subCategory.getString(JsonDeserializeMap.JSON_SUB_CATEGORY_NAME),
+                    subCategory.getBoolean(
+                            JsonDeserializeMap.JSON_SUB_CATEGORY_HAS_SUBCATEGORIES)
             );
             subCategories.add(category);
         }
@@ -97,15 +101,15 @@ public class EaptekaApiClient implements IEaptekaApiClient {
         ArrayList<Offer> offersList = new ArrayList<>();
         for(int i = 0; i < offersJsonArray.length(); i++) {
             JSONObject offerJson = offersJsonArray.getJSONObject(i);
-            int id = offerJson.getInt(DeserializeMap.JSON_OFFER_ID);
+            int id = offerJson.getInt(JsonDeserializeMap.JSON_OFFER_ID);
             JSONArray picturesUrlsJsonArray =
-                    offerJson.getJSONArray(DeserializeMap.JSON_OFFER_PICTURES_URLS_ARRAY);
+                    offerJson.getJSONArray(JsonDeserializeMap.JSON_OFFER_PICTURES_URLS_ARRAY);
             String[] picturesUrls = parsePicturesUrlsJSONArray(picturesUrlsJsonArray);
 
             Offer offer = new Offer(
                     id,
-                    offerJson.getString(DeserializeMap.JSON_OFFER_NAME),
-                    offerJson.getString(DeserializeMap.JSON_OFFER_ICON_URL),
+                    offerJson.getString(JsonDeserializeMap.JSON_OFFER_NAME),
+                    offerJson.getString(JsonDeserializeMap.JSON_OFFER_ICON_URL),
                     picturesUrls
             );
             offersList.add(offer);
